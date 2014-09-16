@@ -30,6 +30,7 @@ int main(int argc, char **argv)
 		{
 			listDirectory(root,name);
 		}
+		else printf("Command \"%s\" not found.\n",command);
 	}
 
 	printf("\n BFS of root directory: \n");

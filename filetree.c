@@ -52,6 +52,7 @@ Node *changeDirectory(Node *root,char *path)
 			return NULL;
 		}
 		else if (j == length) return node;
+		path[j] = '/';
 		i = ++j;
 	}
 }
@@ -148,7 +149,7 @@ Node *removeFile(Node *root, char *absName)
 				return root;
 			}
 			lastNode = list;
-			list = list->next;
+			list     = list->next;
 		}
 		list = node->listFile;
 	}
@@ -185,7 +186,6 @@ void listDirectory(Node *root, char* path)
 
 void showTree(Node *root)
 {
-
 	Queue *q = queueConstructor();
 	addQueue(q,root);
 	while(q->head != NULL)
