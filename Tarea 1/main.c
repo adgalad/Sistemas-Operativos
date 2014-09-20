@@ -52,9 +52,20 @@ int main ( int argc, char **argv ) {
 			tokken = strtok(argumento, s);
 			archivo *directorio;
 			directorio = raiz;
-			Crear_archivo(&directorio, &tokken);
+			Crear_directorio(&directorio, &tokken);
 
 			}
+		else if( strcmp(comando, "ls") == 0 ) {
+			char *argumento = (char *)malloc(sizeof(char)*100);
+			char *s = "/";
+			char *tokken;
+			fscanf(archivoin, "%s\n", argumento);
+			tokken = strtok(argumento, s);
+			archivo *directorio;
+			directorio = raiz;
+			Listar_archivos(&directorio, &tokken);
+
+		}
 		else {
 			printf("%s\n", comando);
 			break;

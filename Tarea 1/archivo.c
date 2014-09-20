@@ -96,31 +96,45 @@
  void Listar_archivos ( archivo **raiz, char **tokken) {
  	archivo *directorio;
  	directorio = *raiz;
- 	Llegar_ruta(&directorio, &*tokken);
- 	if ( directorio->hijo == NULL ) {
- 		printf("El directorio esta vacio\n");
+ 	if ( *tokken != NULL){
+ 		Llegar_ruta(&directorio, &*tokken);
+ 		while ( strcmp( directorio->nombre, *tokken ) != 0 ) {
+ 			directorio = directorio->sig;
+ 			if ( directorio == NULL ){
+ 				printf("\n La ruta no existe \n");
+        		exit(1);
+ 			}
+ 		}
+ 		if ( directorio->hijo == NULL ) {
+ 			printf("El directorio esta vacio\n");
+ 		}
+ 		else {
+ 			directorio = directorio->hijo;
+ 			while ( directorio != NULL ){
+ 				printf("%s tipo de archivo: %s\n", directorio->nombre, Tipo_archivo(directorio->tipo));
+ 				directorio = directorio->sig;
+
+ 			}
+ 		}
  	}
  	else {
  		directorio = directorio->hijo;
  		while ( directorio != NULL ){
- 			printf("%s tipo de archivo: %s", directorio->nombre, Tipo_archivo(directorio->tipo));
+ 			printf("%s tipo de archivo: %s\n", directorio->nombre, Tipo_archivo(directorio->tipo));
  			directorio = directorio->sig;
-
  		}
  	}
-
 
  }
 
 
  char* Tipo_archivo( bool tipo ){
- 	char *tipod;
- 	if ( tipo == TRUE ) {
- 		*tipod = "Directorio";
+ 	if ( tipo == true ) {
+ 		char *tipod = "Directorio";
  		return tipod;
  	}
  	else {
- 		*tipod = "Archivo";
+ 		char *tipod = "Archivo";
  		return tipod;
  	}
  }
