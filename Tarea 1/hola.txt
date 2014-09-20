@@ -1,0 +1,6 @@
+ma /perro.txt
+md /gato
+ma /gato/sapo.txt
+md /gato/popo
+ma /gato/popo/teton.txt
+fin
