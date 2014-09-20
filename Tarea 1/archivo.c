@@ -91,3 +91,36 @@
 
 
  }
+
+
+ void Listar_archivos ( archivo **raiz, char **tokken) {
+ 	archivo *directorio;
+ 	directorio = *raiz;
+ 	Llegar_ruta(&directorio, &*tokken);
+ 	if ( directorio->hijo == NULL ) {
+ 		printf("El directorio esta vacio\n");
+ 	}
+ 	else {
+ 		directorio = directorio->hijo;
+ 		while ( directorio != NULL ){
+ 			printf("%s tipo de archivo: %s", directorio->nombre, Tipo_archivo(directorio->tipo));
+ 			directorio = directorio->sig;
+
+ 		}
+ 	}
+
+
+ }
+
+
+ char* Tipo_archivo( bool tipo ){
+ 	char *tipod;
+ 	if ( tipo == TRUE ) {
+ 		*tipod = "Directorio";
+ 		return tipod;
+ 	}
+ 	else {
+ 		*tipod = "Archivo";
+ 		return tipod;
+ 	}
+ }

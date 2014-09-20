@@ -46,5 +46,10 @@ void Eliminar_archivos( archivo **raiz, char **tokken );
 
 /* POST: Se ha eliminado el archivo o directorio */
 
+char* Tipo_archivo( bool tipo );
+/* PRE: True */
+
+/* POST: True -> directorio o false -> archivo */
+
 
 #endif 
