@@ -98,6 +98,11 @@
  	directorio = *raiz;
  	if ( *tokken != NULL){
  		Llegar_ruta(&directorio, &*tokken);
+ 		if ( directorio->hijo == NULL ) {
+ 			printf("La ruta no existe\n");
+ 			exit(1);
+ 		}
+ 		directorio = directorio->hijo;
  		while ( strcmp( directorio->nombre, *tokken ) != 0 ) {
  			directorio = directorio->sig;
  			if ( directorio == NULL ){
