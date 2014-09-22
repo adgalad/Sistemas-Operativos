@@ -1,7 +1,11 @@
-ma /perro.txt
-md /gato
-ma /gato/sapo.txt
-md /gato/popo
-ma /gato/teton.txt
-ls /gato
+ma /file1.dat
+md /Cursos
+md /Juegos
+md /Cursos/ci-3881
+ma /Cursos/ci-3881/clases.tex
+ls /Cursos
+ma /file2.tex
+rm /file1.dat
+rm /Cursos/ci-3881
+ls /Juegos
 fin

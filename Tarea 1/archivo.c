@@ -37,9 +37,17 @@
  }
 
  void Crear_archivo( archivo **raiz, char **tokken ){
+ 	 if ( *tokken == NULL){
+ 		printf("El argumento del comando esta vacio\n");
+ 		exit(1);
+ 	}
  	archivo *directorio;
  	directorio = *raiz;
  	Llegar_ruta( &directorio, &*tokken);
+ 	if ( directorio->tipo != true ) {
+ 		printf("No se puede crear archivos o directorios en un archivo\n");
+ 		exit(1);
+ 	}
  	archivo *aux = (archivo*)malloc(sizeof(archivo));
  	aux->nombre = *tokken;
  	aux->tipo = false;
@@ -65,9 +73,17 @@
 
 
  void Crear_directorio( archivo **raiz, char **tokken){
+ 	if ( *tokken == NULL){
+ 		printf("El argumento del comando esta vacio\n" );
+ 		exit(1);
+ 	}
  	archivo *directorio;
  	directorio = *raiz;
  	Llegar_ruta(&directorio, &*tokken);
+ 	if ( directorio->tipo != true ) {
+ 		printf("No se puede crear archivos o directorios en un archivo\n");
+ 		exit(1);
+ 	}
  	archivo *aux = (archivo*)malloc(sizeof(archivo));
  	aux->nombre = *tokken;
  	aux->tipo = true;
@@ -143,3 +159,43 @@
  		return tipod;
  	}
  }
+
+void Eliminar_archivos( archivo **raiz, char **tokken){
+	 if ( *tokken == NULL){
+ 		printf("No se puede eliminar la carpteta raiz\n" );
+ 		exit(1);
+ 	}
+ 	archivo *directorio;
+ 	directorio = *raiz;
+ 	Llegar_ruta(&directorio, &*tokken);
+ 	archivo *padre;
+ 	padre = directorio;
+ 	directorio = directorio->hijo;
+ 	while ( strcmp( directorio->nombre, *tokken ) != 0 ) {
+ 		directorio = directorio->sig;
+ 		if ( directorio == NULL ){
+ 			printf("\n La ruta no existe \n");
+        	exit(1);
+ 		}
+ 	}
+ 	if ( directorio->tipo == true ) {
+ 		if ( directorio->numarchi != 0 ){
+ 			printf("El directorio que intentas eliminar no esta vacio\n");
+ 			return;
+ 		}
+ 		char *nombre = directorio->nombre;
+ 		free(directorio);
+ 		padre->numarchi = padre->numarchi - 1;
+ 		printf("Se ha eliminado correctamente el directorio %s\n",nombre);
+ 	}
+ 	else {
+ 		char *nombre = directorio->nombre;
+ 		free(directorio);
+ 		padre->numarchi = padre->numarchi - 1;
+ 		printf("Se ha eliminado correctamente el archivo %s\n",nombre);
+ 	}
+
+ 	
+
+
+}

@@ -66,6 +66,17 @@ int main ( int argc, char **argv ) {
 			Listar_archivos(&directorio, &tokken);
 
 		}
+		else if( strcmp(comando, "rm") == 0 ) {
+			char *argumento = (char *)malloc(sizeof(char)*100);
+			char *s = "/";
+			char *tokken;
+			fscanf(archivoin, "%s\n", argumento);
+			tokken = strtok(argumento, s);
+			archivo *directorio;
+			directorio = raiz;
+			Eliminar_archivos(&directorio, &tokken);
+
+		}
 		else {
 			printf("%s\n", comando);
 			break;
