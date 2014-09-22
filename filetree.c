@@ -75,7 +75,7 @@ int split(char *source, char *path, char *name)
 Node *newFile(Node *root, char *absName, int flag)
 {
 	char *path = malloc(255),
-		 *name = malloc(255);
+	     *name = malloc(255);
 	Node *node;
 	if (!split(absName, path, name))
 	{
@@ -119,7 +119,7 @@ Node *removeFile(Node *root, char *absName)
 		 *name = malloc(255);
 	Node *node;
 	List *list, 
-		 *lastNode = NULL;	
+		 *lastNode;	
 
 	split(absName, path, name);
 	node = changeDirectory(root,path);
@@ -129,6 +129,8 @@ Node *removeFile(Node *root, char *absName)
 	list = node->listDir;
 	for(type = 0 ; type <2 ; type++)
 	{
+		int i = 1;
+		lastNode=NULL;
 		while(list!=NULL)
 		{
 			if(strcmp(list->node->name, name) == 0) 
@@ -136,8 +138,14 @@ Node *removeFile(Node *root, char *absName)
 				if (type || !list->node->nFile)
 				{
 					if (lastNode == NULL)
-						if (type) node->listFile = node->listFile->next;
-						else      node->listDir  = node->listDir->next;
+						if (type)
+						{ 
+							node->listFile = node->listFile->next;
+						}
+						else
+						{
+						    node->listDir  = node->listDir->next;
+						}
 					else
 						lastNode->next = list->next;
 
@@ -188,6 +196,7 @@ void showTree(Node *root)
 {
 	Queue *q = queueConstructor();
 	addQueue(q,root);
+	int i=0;
 	while(q->head != NULL)
 	{
 		Node *node = removeQueue(q);

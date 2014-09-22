@@ -7,7 +7,6 @@ int main(int argc, char **argv)
 {
 	FILE* f;
 	char *command,*name;
-
 	f = fopen(argv[1],"r");
 	command = malloc(255);
 	name = malloc(255);
@@ -26,14 +25,14 @@ int main(int argc, char **argv)
 		{
 			root = removeFile(root,name);
 		}
-		else if(strcmp(command,"ls") == 0)
+		else if (strcmp(command,"ls") == 0)
 		{
 			listDirectory(root,name);
 		}
-		else printf("Command \"%s\" not found.\n",command);
+		else printf("Command \"%s\" not found.\n",command); 
 	}
 
-	printf("\n BFS of root directory: \n");
+	printf("\n BFS of root directory:");
 	showTree(root);
 	fclose(f);
 
