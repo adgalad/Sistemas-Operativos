@@ -4,10 +4,7 @@
  */
 
 #include "archivo.h"
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
+#include "cola.h"
  void Llegar_ruta( archivo **raiz, char **tokken ){
  	char *aux;
  	archivo *directorio;
@@ -194,8 +191,24 @@ void Eliminar_archivos( archivo **raiz, char **tokken){
  		padre->numarchi = padre->numarchi - 1;
  		printf("Se ha eliminado correctamente el archivo %s\n",nombre);
  	}
+}
 
- 	
+void Bfs ( archivo **raiz ){
+	cola c = Crear_cola();
+	Encolar(&c, *raiz);
+	while ( !Cola_vacia(c) ){
+		archivo *actual;
+		archivo *aux;
+		actual = *raiz;
+		Desencolar(&c, &actual);
+		aux = actual->hijo;
+		printf("Nombre de archivo o carpeta: %s\n", actual->nombre);
+		while ( aux != NULL ){
+			Encolar(&c, aux);
+			aux = aux->sig;
 
+		}
+		free(actual);
 
+	}
 }

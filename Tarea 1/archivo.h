@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
+
 
 typedef struct archivo {
 	char *nombre;
@@ -50,6 +52,12 @@ char* Tipo_archivo( bool tipo );
 /* PRE: True */
 
 /* POST: True -> directorio o false -> archivo */
+
+void Bfs ( archivo **raiz );
+/* PRE: True */
+
+/* POST: Se listaran por pantalla todos los archivos del arbol de 
+		directorios */
 
 
 #endif 
