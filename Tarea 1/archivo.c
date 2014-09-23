@@ -166,9 +166,13 @@ void Eliminar_archivos( archivo **raiz, char **tokken){
  	directorio = *raiz;
  	Llegar_ruta(&directorio, &*tokken);
  	archivo *padre;
+ 	archivo *hermano;
  	padre = directorio;
  	directorio = directorio->hijo;
+ 	bool hijodirecto = true;
  	while ( strcmp( directorio->nombre, *tokken ) != 0 ) {
+ 		hijodirecto = false;
+ 		hermano = directorio;
  		directorio = directorio->sig;
  		if ( directorio == NULL ){
  			printf("\n La ruta no existe \n");
@@ -181,12 +185,24 @@ void Eliminar_archivos( archivo **raiz, char **tokken){
  			return;
  		}
  		char *nombre = directorio->nombre;
+ 		if ( hijodirecto ) {
+ 			padre->hijo = directorio->sig;
+ 		}
+ 		else {
+ 			hermano->sig = directorio->sig;
+ 		}
  		free(directorio);
  		padre->numarchi = padre->numarchi - 1;
  		printf("Se ha eliminado correctamente el directorio %s\n",nombre);
  	}
  	else {
  		char *nombre = directorio->nombre;
+ 		if ( hijodirecto ) {
+ 			padre->hijo = directorio->sig;
+ 		}
+ 		else {
+ 			hermano->sig = directorio->sig;
+ 		}
  		free(directorio);
  		padre->numarchi = padre->numarchi - 1;
  		printf("Se ha eliminado correctamente el archivo %s\n",nombre);
@@ -195,16 +211,15 @@ void Eliminar_archivos( archivo **raiz, char **tokken){
 
 void Bfs ( archivo **raiz ){
 	cola c = Crear_cola();
-	Encolar(&c, *raiz);
+	Encolar(&c, &*raiz);
 	while ( !Cola_vacia(c) ){
 		archivo *actual;
 		archivo *aux;
-		actual = *raiz;
-		Desencolar(&c, &actual);
+		actual = Desencolar(&c);
 		aux = actual->hijo;
-		printf("Nombre de archivo o carpeta: %s\n", actual->nombre);
+		printf("Nombre: %s tipo: %s\n", actual->nombre, Tipo_archivo(actual->tipo));
 		while ( aux != NULL ){
-			Encolar(&c, aux);
+			Encolar(&c, &aux);
 			aux = aux->sig;
 
 		}

@@ -78,7 +78,7 @@ int main ( int argc, char **argv ) {
 
 		}
 		else {
-			printf("Recorrido Breadth first search al directorio:\n\n");
+			printf("\nRecorrido Breadth first search al directorio:\n\n");
 			Bfs(&raiz);
 			break;
 		}
