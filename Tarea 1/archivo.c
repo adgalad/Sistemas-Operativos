@@ -15,7 +15,7 @@
  	while ( *tokken != NULL ){
  		directorio = directorio->hijo;
  		if ( directorio == NULL ){
- 			printf("\n La ruta no existe1 \n");
+ 			printf("\n La ruta no existe \n");
         	exit(1);
  		}
  		while ( strcmp( aux, directorio->nombre ) != 0 ) {

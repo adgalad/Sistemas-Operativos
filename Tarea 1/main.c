@@ -1,7 +1,8 @@
 /* Estructura principal de la tarea1
- * Autores:
+ * Autor: Jose Peña 11-10775
+ *		  Carlos Spaggiari 11-10987
  */
-
+ 
  /* Comandos principales: md: Crear directorio, ma: Crear Archivo, 
   *	rm: Eliminar archivo o directorio vacio, ls: Listar archivos del directorio
   */

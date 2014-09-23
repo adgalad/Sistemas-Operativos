@@ -1,8 +1,9 @@
 /* Tarea 1 
  * Representa el TAD cola
- * Autor: 
+ * Autor: Jose Peña 11-10775
+ *		  Carlos Spaggiari 11-10987
  */
-
+ 
  #ifndef cola_h
 
  #define cola_h

@@ -1,8 +1,8 @@
 /* Tarea 1 
  * TAD cola
- * Autor: 
+ * Autor: Jose Peña 11-10775
+ *		  Carlos Spaggiari 11-10987
  */
-
 
 #include "cola.h"
 

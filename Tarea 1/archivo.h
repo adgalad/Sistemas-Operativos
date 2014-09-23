@@ -1,8 +1,9 @@
 /* Tarea 1 
  * Representa el TAD archivo
- * Autor: 
+ * Autor: Jose Peña 11-10775
+ *		  Carlos Spaggiari 11-10987
  */
-
+ 
 #ifndef archivo_h
 #define archivo_h
 
@@ -57,7 +58,7 @@ void Bfs ( archivo **raiz );
 /* PRE: True */
 
 /* POST: Se listaran por pantalla todos los archivos del arbol de 
-		directorios */
+ * directorios */
 
 
 #endif 
