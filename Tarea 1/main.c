@@ -24,7 +24,6 @@ int main ( int argc, char **argv ) {
 	}
 
 	char *comando = (char *)malloc(sizeof(char)*2);
-	FILE *traza = fopen( "traza.txt", "w");
 	archivo *raiz = (archivo *)malloc(sizeof(archivo));
 	raiz->nombre = "/";
 	raiz->tipo = true;
