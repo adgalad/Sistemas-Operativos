@@ -8,7 +8,7 @@
 #define TRUE  1
 
 #define DIRECTORY 0
-#define FILES      1
+#define FILES     1
 
 typedef struct Node_t
 {

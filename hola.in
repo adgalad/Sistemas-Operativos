@@ -1,0 +1,20 @@
+md /Carpeta
+md /Carpeta/Musica
+md /Carpeta/Musica/Album
+ma /Carpeta/Musica/Album/Cancion1.mp3
+ma /Carpeta/Musica/Album/Cancion2.mp3
+ma /Carpeta/Musica/Album/Cancion3.mp3
+ma /Carpeta/Musica/Album/Cancion4.mp3
+md /Carpeta/Musica/Album/Lyric
+ma /Carpeta/Musica/Album/Lyric/letra.txt
+ls /Carpeta/Musica/Album
+rm /Carpeta/Musica/Album/Cancion1.mp3
+rm /Carpeta/Musica/Album/Cancion2.mp3
+rm /Carpeta/Musica/Album/Cancion3.mp3
+rm /Carpeta/Musica/Album/Cancion4.mp3
+rm /Carpeta/Musica/Album/Lyric
+ls /
+ls /Carpeta
+ls /Carpeta/Musica
+ls /Carpeta/Musica/Album
+
