@@ -47,7 +47,9 @@ void *addQueue(Queue *q, struct Node_t *node)
 struct Node_t *removeQueue(Queue *q)
 {
 	if (q->head == NULL) return NULL;
+	List *aux = q->head;
 	struct Node_t *node = q->head->node;
 	q->head = q->head->next;
+	free(aux);
 	return node;
 }

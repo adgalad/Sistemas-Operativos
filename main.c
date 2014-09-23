@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 		else printf("Command \"%s\" not found.\n",command); 
 	}
 
-	printf("\n BFS of root directory:");
+	printf("\n BFS of root directory:\n");
 	showTree(root);
 	fclose(f);
 
