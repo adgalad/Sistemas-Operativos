@@ -1,8 +1,9 @@
 /* Tarea 1 
  * Representa el TAD cola
- * Autor: 
+ * Autor: Jose Peña 11-10775
+ *		  Carlos Spaggiari 11-10987
  */
-
+ 
  #ifndef cola_h
 
  #define cola_h
@@ -28,12 +29,12 @@
 
  	/* POST: Se crear la cola */
 
- void Encolar ( cola *c, archivo* archi );
+ void Encolar ( cola *c, archivo **archi );
  	/* PRE: Existe cola */
 
  	/* POST: Se ha agregado un nuevo nodo a la cola */
 
- void Desencolar ( cola *c, archivo ** archi);
+ archivo* Desencolar ( cola *c );
  	/* PRE: La cola no esta vacia */
 
  	/* POST: Se desempila el archivo de la cola */

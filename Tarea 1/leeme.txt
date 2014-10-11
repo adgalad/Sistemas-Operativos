@@ -1,0 +1,22 @@
+Autores: Jose Peña 11-10775
+		 Carlos Spaggiari 11-10987
+
+fecha: 24/09/2014
+
+El programa es una simulacion de directorio de archivos, el cual tiene ciertas libertades, crear archivos vacios con "ma", carpetas vacias "md"; eliminar archivos y carpetas vacias con "rm"; listar todos los archivos y carpetas de una carpeta en particular con "ls". Los comandos tienen que estar incluidos con la ruta en el directorio al cual tienes que ejecutar la accion.
+
+El procedimiento para introducir comandos dentro del programa es a traves de un archivo de texto plano, el cual se le pasa como argumento al momento de ejecutar el programa.
+
+Por ultimo, cabe destacar que el programa al finalizar la ejecucion de los comandos del archivo de texto plano realiza una busqueda en anchura (BFS) recorriendo toda la estructura actual del directorio, dado que esto representa la culminacion de la corrida, mientras el recorrido (BFS) esta en corrida, el programa va liberando la memoria de los directorios.
+
+Compilacion:
+			La compilacion es bastante sencilla, basta con realizar el comando "$make" para que el script se encarge de compilar todo el programa en general. Ademas puede hacer "$make clean" para limpiar los archivos ".o".
+
+Invocacion: 
+			Al estar compilado basta con correr el comando "$filetree <archivo plano>"
+
+Entrada y Salida: 
+			Para entrada se requiere solo el archivo con las acciones a realizar.
+
+			Para la salida, el programa imprime por salida estandar mensajes de notificacion que los procedimientos se cumplieron de manera correcta, asi mismo el programa avisa si se ha producido algun error en la entrada de parametros por el archivo.
+			
