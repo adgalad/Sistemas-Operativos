@@ -1,7 +1,7 @@
 
 #include "filetree.h"
 
-Node *newNode(char* name, char *path, int type)
+Node *newNode(char* name, char *path, int type, Node *parent)
 {
 	Node *node = (Node*) malloc(sizeof(Node));
 	node->name = malloc(255);
@@ -12,6 +12,7 @@ Node *newNode(char* name, char *path, int type)
 	node->nFile    = 0;
 	node->listDir  = NULL;
 	node->listFile = NULL;
+	parent 		   = parent;
 
 	return node;
 }
@@ -32,6 +33,13 @@ Node *changeDirectory(Node *root,char *path)
 {
 	int i=1, j=1, length = strlen(path);
 	Node *node = root;
+	if (!strcmp(path,".."))
+	{
+		if (root->parent != NULL)
+			return root->parent;
+		else
+			return root;
+	}
 	if(path[0] != '/')
 	{
 		printf("ERROR: No such file or directory.\n");
@@ -96,8 +104,9 @@ Node *newFile(Node *root, char *absName, int flag)
 				printf("ERROR: File or directory already exists.\n");
 		else
 		{
-			node->listFile = add(node->listFile, newNode(name, path, flag));
+			node->listFile = add(node->listFile, newNode(name, path, flag,node));
 			node->nFile++;
+			
 		}
 	}
 	else
@@ -106,7 +115,7 @@ Node *newFile(Node *root, char *absName, int flag)
 				printf("ERROR: File or directory already exists.\n");
 		else
 		{
-			node->listDir = add(node->listDir, newNode(name, path, flag));
+			node->listDir = add(node->listDir, newNode(name, path, flag, node));
 			node->nFile++;
 		}
 	}

@@ -12,15 +12,16 @@
 
 typedef struct Node_t
 {
-	char *name;
-	char *path;
-	int  type;
-	int  nFile;
-	List *listDir;
-	List *listFile;
+	struct Node_t *parent;
+	char   *name;
+	char   *path;
+	int    type;
+	int    nFile;
+	List   *listDir;
+	List   *listFile;
 } Node;
 
-Node *newNode(char* name, char *path, int type);
+Node *newNode(char* name, char *path, int type, Node *parent);
 
 Node *findFile(List *list, char *name);
 
