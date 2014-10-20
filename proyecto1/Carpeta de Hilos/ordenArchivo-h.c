@@ -4,6 +4,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include "ordenArchivo-h.h"
+#include <time.h>
 
 
 Nodo *nodo;
@@ -11,9 +12,14 @@ int *arr;
 int n;
 
 int main(int argv, char **argc) {
+	time_t start, stop;
+
+	time(&start);
+
 	n = atoi(argc[2]);
 	int i;
 	char *nombreArchivo = argc[3];
+	char *archivoSalida = argc[4];
 
 	int m = pow(2,n)-1;
 	FILE *fp;
@@ -59,10 +65,20 @@ int main(int argv, char **argc) {
 	else rama(0);
 	
 	
-	for ( i = 0; i < atoi(argc[1]) ; i++ ) {
-		printf("%d\n", arr[i]);
+	FILE *fwrite = fopen(archivoSalida,"w");
+	
+	if (fwrite != NULL)
+	{
+		
+		for(int j = 0; j < atoi(argc[1]) ; j++)
+			fprintf(fwrite,"%d\n", arr[j]);
+			
+		fclose(fwrite);
 	}
+	else printf("Error creando archivo \"%s\" \n", archivoSalida);
 
+	time(&stop);
+	printf("Tiempo de Ejecucion: %f \n", difftime(stop, start));
 	
 	return 0 ; 
 }
@@ -144,5 +160,6 @@ void quickSort(int arr[],int inicio,int fin) {
     if(fin > f) quickSort(arr,i,fin);
 
 }
+
 
 
