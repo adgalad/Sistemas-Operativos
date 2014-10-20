@@ -17,8 +17,10 @@ typedef struct Arg_t {
 	int *arr;
 } Arg_t;
 
-void llamarhoja (Arg_t *argumento);
+void hoja (Arg_t *argumento);
 
 void rama( Arg_t *argumento );
+
+void quickSort(int arr[],int inicio,int fin);
 
 #endif
