@@ -13,8 +13,10 @@ int main(int argv, char **argc)
 	int   medio;
 	int   i;
 	pid_t child;
+//	time_t start, stop;
 
-
+//	time(&start);
+	
 	if (nivel <= 0)
 	{
 		perror("El numero de niveles debe ser mayor que 0");
@@ -77,7 +79,12 @@ et1:	medio = (fin + inicio)/2;
 
 	arreglo = merge(aux1,aux2,n1,n2);
 	
-	if (nivelActual == 1) writeFile("ArchivoEnterosOrdenado",arreglo,n1+n2,1);
+	if (nivelActual == 1)
+	{ 
+		writeFile("ArchivoEnterosOrdenado",arreglo,n1+n2,1);
+	//	time(&stop);
+	//	printf("Tardo %.6f segundos \n",difftime(stop,start));
+	}
 	else                  writeFile(itos(getpid()),arreglo,n1+n2,0);
 
 	
