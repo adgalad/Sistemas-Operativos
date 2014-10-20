@@ -10,7 +10,7 @@ int main(int argv, char **argc)
 	int a[n];
 	for(i = 0 ; i < n ; i ++) a[i] = n-i; 
 	for(i = 0 ; i < n ; i ++) 
-		fwrite(&a,sizeof(int),1,f);
+		fwrite(&a[i],sizeof(int),1,f);
 
 	fclose(f);
 	return 0;

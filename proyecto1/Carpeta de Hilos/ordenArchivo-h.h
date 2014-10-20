@@ -11,15 +11,9 @@ typedef struct Nodo_t
 	pthread_t pid;
 } Nodo;
 
-typedef struct Arg_t {
-	int id;
-	Nodo *nodo; 
-	int *arr;
-} Arg_t;
+void hoja (int id);
 
-void hoja (Arg_t *argumento);
-
-void rama( Arg_t *argumento );
+void rama( int id );
 
 void quickSort(int arr[],int inicio,int fin);
 
