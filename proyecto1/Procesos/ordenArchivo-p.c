@@ -13,9 +13,9 @@ int main(int argv, char **argc)
 	int   medio;
 	int   i;
 	pid_t child;
-//	time_t start, stop;
+	clock_t start, stop;
 
-//	time(&start);
+	start = clock();
 	
 	if (nivel <= 0)
 	{
@@ -49,8 +49,8 @@ et1:	medio = (fin + inicio)/2;
 			}
 			else
 			{
-				chdir("./");
-				char app[] = "hoja";
+//				chdir("./");
+				char app[] = "./hoja";
         			char *const argv[] = { app, itos(inicio), itos(fin),
         			                       nombreArchivo,  NULL };
         			
@@ -76,18 +76,20 @@ et1:	medio = (fin + inicio)/2;
 	aux2 = readFile(nombreArchivo,&n2);
 	remove(nombreArchivo);
 	int j;	
-
+	
 	arreglo = merge(aux1,aux2,n1,n2);
 	
 	if (nivelActual == 1)
 	{ 
 		writeFile("ArchivoEnterosOrdenado",arreglo,n1+n2,1);
-	//	time(&stop);
-	//	printf("Tardo %.6f segundos \n",difftime(stop,start));
+		stop = clock();
+		printf("Tardo %.6f segundos \n",(double)(stop-start)/CLOCKS_PER_SEC);
 	}
 	else                  writeFile(itos(getpid()),arreglo,n1+n2,0);
 
-	
+	free(aux1);
+	free(aux2);
+	free(arreglo);
 	exit(EXIT_SUCCESS);
 }
 	
