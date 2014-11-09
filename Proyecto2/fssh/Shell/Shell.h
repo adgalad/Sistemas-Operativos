@@ -24,7 +24,7 @@ void cat(int argc, char **argv, NodePipe *root);
 /**********************************/
 
 // Se encarga de esperar y ejecutar los comandos que son escritos
-// por el proceso root en el pipe del proceso correspondiente
+// por el proceso root en el pipe correspondiente
 void waitCommand(NodePipe *node, NodePipe *root);
 
 // Crea una lista de nodos que representan a cada directorio que
