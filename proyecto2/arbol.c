@@ -12,10 +12,8 @@ int main (int argc, char** argv) {
 	ruta = argv[1];
 	padre = -1;
 	FD *ph = NULL;
-	FD hp;
-	int ph_pd[2];
-	int hp_pd[2];
-	char *instruccion;
+	FD *hp;
+	int auxi;
 
 	if (stat(ruta, &inodo) == -1 ) {
 		fprintf(stderr, "No se pudo aplicar stat sobre el archivo %s: %s \n"
@@ -29,15 +27,18 @@ int main (int argc, char** argv) {
 
 directorio:
 
-	/**
-	************************
-		Pipe de Padre a Hijo
-			(Escritura) 
-	************************
+	ph = NULL;
+
+	/** 
+	*************
+		Cable
+	*************
 	**/
 
-	pipe(ph_pd);
-	close(ph_pd[0]);
+	if ( padre == 0 ) {
+		auxi = hp->pd[0];
+	}
+
 
 	/**	 
 	******************************************************
@@ -57,30 +58,24 @@ directorio:
 		exit(1);
 	}
 
+
+
+
+	/**if ( padre == 0 ) {
+		printf("pipe: %s %d \n", hp->hijo, auxi);
+	}**/
+
 	/** 
 	****************************************************
 		Buscamos en la tabla de inodos del directorio
 	****************************************************
 	**/
 
-
 skip:
 	while (( direntp = readdir(dirp)) != NULL ) {
 		if ( !strcmp(direntp->d_name, ".") || !strcmp(direntp->d_name, "..") ) {
 			goto skip;
 		}
-
-		/**
-		***********************************************************
-			Estructura auxiliar para determinar que hijo va a leer 
-								por el pipe 
-		***********************************************************
-		**/
-		FD *ph_aux = (FD *)malloc(sizeof(FD));
-		ph_aux->pd = 0;
-		ph_aux->hijo = direntp->d_name;
-		ph_aux->sig = ph;
-		ph = ph_aux;
 
 		/**
 		***********************************************************
@@ -100,15 +95,30 @@ skip:
 		}
 		else {
 			if ( inodo.st_mode & S_IFDIR ) {
+				/**
+				***********************************************************
+					Estructura auxiliar para comunicacion con los hijos
+				***********************************************************
+				**/
+
+				FD *ph_aux = (FD *)malloc(sizeof(FD));
+				pipe(ph_aux->pd);
+				ph_aux->hijo = direntp->d_name;
+				ph_aux->sig = ph;
+				ph = ph_aux;
+
 				if ( (childpid = fork()) == 0 )  {
 					ruta = aux;
+
+					if ( padre != -1 ) {
+						close(hp->pd[0]);	// Cierro la tuberia del abuelo
+						free(hp);			// Libero la estructura copiada del abuelo
+					}
+
 					padre = 0;
-					hp = *ph;
-					hp_pd[0] = ph_pd[0];
-					hp_pd[1] = ph_pd[1];
-					ph_pd[0] = NULL;
-					ph_pd[1] = NULL;
-					close(hp_pd[1]);
+					hp = ph;
+					close(hp->pd[1]);
+					ph = ph->sig;
 
 					/**
 					 *********************************************************
@@ -126,25 +136,56 @@ skip:
 
 				}
 				else {
-					if ( padre == -1 ){
-						//raiz de los directorios
-					}
-					else {
-						while( !hp.pd );
-						read(ph_pd[1], instruccion, 100);
-						// hacer cosas //
-					}
+					//sleep(1);
+					close(ph->pd[0]);
 				}
 			}
 		}
 		free(aux);
 	}
-
-	close(ph_pd[1]);
 	closedir(dirp);
+
+	if ( padre == -1 ){
+		char *sapo = "pokemon ataca";
+		int perrito;
+		FD *aux_fd;
+		aux_fd = ph;
+		while( !(aux_fd == NULL) ){
+			perrito = write(aux_fd->pd[1], sapo, strlen(sapo)+1);
+			aux_fd = aux_fd->sig;
+		}
+	}
+	else {
+		int perrito;
+		char instruccion[20];
+		perrito = read(auxi, instruccion,20);
+		printf("%d aca: %s soy %s \n", perrito, instruccion, hp->hijo);
+		close(hp->pd[0]);
+		FD *aux_fd;
+		aux_fd = ph;
+		while( !(aux_fd == NULL) ){
+			write(aux_fd->pd[1], instruccion, strlen(instruccion)+1);
+			aux_fd = aux_fd->sig;
+		}
+
+	} 
+	FD *aux_fd;
+	aux_fd = ph;
+	while( !(aux_fd == NULL) ){
+		close(aux_fd->pd[1]);
+		aux_fd = aux_fd->sig;
+		free(ph);
+		ph = aux_fd;
+	}
 	exit(0);
 
 }
+
+/**
+ *****************************************
+	Manejador de señales para los hijos.
+ *****************************************
+ **/
 
 void childHandler () {
 	int childPid, childStatus;
