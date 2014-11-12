@@ -111,7 +111,7 @@ skip:
 						father = 0;
 						close(hp->pd[0]);	// Cierro la tuberia del abuelo
 						free(hp);			// Libero la estructura copiada del abuelo
-						close(rs[0]);
+						close(rs[0]);		// Cierro la tuberia de lectura para resultado
 					}
 
 					father = 0;
@@ -189,7 +189,6 @@ shell:	printf("fssh$ ");
 		}
 
 		strcpy(tokken, lectura);
-		direccion = (char *)malloc(sizeof(lectura)+1);
 		direccion = strtok(tokken, "\ ");
 		direccion = strtok(NULL,"\ ");
 		direccion = strtok(direccion, "/");
@@ -237,7 +236,6 @@ prompt2:
 
 
 			strcpy(tokken, instruccion);
-			direccion = (char *)malloc(sizeof(instruccion)+1);
 			direccion = strtok(tokken, "\ ");
 			direccion = strtok(NULL,"\ ");
 			direccion = strtok(direccion, "/");
@@ -251,7 +249,6 @@ prompt2:
 			aux1++;
 
 			strcpy(tokken, instruccion);
-			direccion1 = (char *)malloc(sizeof(instruccion)+1);
 			direccion1 = strtok(tokken, "\ ");
 			direccion1 = strtok(NULL,"\ ");
 			direccion1 = strtok(direccion1, "/");
@@ -278,7 +275,7 @@ prompt2:
 				}
 				write(aux_fd->pd[1], instruccion, strlen(instruccion)+1);
 			}
-
+			free(tokken);
 		}
 
 	} 
