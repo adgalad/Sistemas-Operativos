@@ -4,15 +4,16 @@ int main (int argc, char** argv) {
 
 	signal(SIGCHLD, childHandler);
 	struct stat inodo;
-	int padre;
+	int father;
 	DIR *dirp;
 	struct dirent *direntp;
 	char *ruta;
 	pid_t childpid;
 	ruta = argv[1];
-	padre = -1;
+	father = -1;
 	FD *ph = NULL;
 	FD *hp;
+	int rs[2];
 	int auxi;
 
 	if (stat(ruta, &inodo) == -1 ) {
@@ -25,6 +26,8 @@ int main (int argc, char** argv) {
 		exit(1);
 	}
 
+	pipe(rs);
+
 directorio:
 
 	ph = NULL;
@@ -35,7 +38,7 @@ directorio:
 	*************
 	**/
 
-	if ( padre == 0 ) {
+	if ( father == 0 ) {
 		auxi = hp->pd[0];
 	}
 
@@ -51,19 +54,13 @@ directorio:
 		strcat(ruta,"/");
 	}
 		
-	printf("ruta actual: %s\n", ruta);
+	//printf("ruta actual: %s\n", ruta);
 
 	if ( (dirp = opendir(ruta)) == NULL ) {
 		fprintf(stderr, "No se pudo abrir el directorio\n");
 		exit(1);
 	}
 
-
-
-
-	/**if ( padre == 0 ) {
-		printf("pipe: %s %d \n", hp->hijo, auxi);
-	}**/
 
 	/** 
 	****************************************************
@@ -106,16 +103,18 @@ skip:
 				ph_aux->hijo = direntp->d_name;
 				ph_aux->sig = ph;
 				ph = ph_aux;
-
+				
 				if ( (childpid = fork()) == 0 )  {
 					ruta = aux;
 
-					if ( padre != -1 ) {
+					if ( father != -1 ) {
+						father = 0;
 						close(hp->pd[0]);	// Cierro la tuberia del abuelo
 						free(hp);			// Libero la estructura copiada del abuelo
+						close(rs[0]);
 					}
 
-					padre = 0;
+					father = 0;
 					hp = ph;
 					close(hp->pd[1]);
 					ph = ph->sig;
@@ -136,7 +135,6 @@ skip:
 
 				}
 				else {
-					//sleep(1);
 					close(ph->pd[0]);
 				}
 			}
@@ -145,27 +143,142 @@ skip:
 	}
 	closedir(dirp);
 
-	if ( padre == -1 ){
-		char *sapo = "pokemon ataca";
-		int perrito;
+
+
+	/** 
+	*****************************************
+			Entrada de Comandos
+	*****************************************
+	**/
+
+prompt1:
+
+	if ( father == -1 ){
+		char lectura[100];
+		char tokken[100];
+		char resultado[1000];
+		char *direccion;
+		int status;
+shell:	printf("fssh$ ");
+		fgets(lectura,100, stdin);
+		if ( !strcmp(lectura, "\n") ) {
+			printf("\n");
+			goto shell;
+		}
 		FD *aux_fd;
+
+		if ( lectura[strlen(lectura)-1] == '\n' ){
+			lectura[strlen(lectura)-1] = '\0';
+		}
+
+		/**
+		***************************************************************
+			Cierre de todos los Pipes y terminacion del proceso raiz
+		***************************************************************
+		**/
+
+		if ( !strcmp(lectura, "exit") ){
+			aux_fd = ph;
+			while ( aux_fd != NULL ) {
+				ph = aux_fd->sig;
+				close(aux_fd->pd[1]);
+				free(aux_fd);
+				aux_fd = ph;
+				exit(0);
+			}
+		}
+
+		strcpy(tokken, lectura);
+		direccion = (char *)malloc(sizeof(lectura)+1);
+		direccion = strtok(tokken, "\ ");
+		direccion = strtok(NULL,"\ ");
+		direccion = strtok(direccion, "/");
+
+		if ( direccion == NULL ) {
+			// Ejecutar Instruccion
+			char *out = "ejecuto instruccion soy: raiz";
+			write(rs[1],out, strlen(out)+1);
+			goto resul;
+		}
+			
 		aux_fd = ph;
-		while( !(aux_fd == NULL) ){
-			perrito = write(aux_fd->pd[1], sapo, strlen(sapo)+1);
-			aux_fd = aux_fd->sig;
+		while ( strcmp(aux_fd->hijo, direccion) ){
+				aux_fd = aux_fd->sig;				
+				if ( aux_fd == NULL ){
+					printf("La ruta del comando no existe\n");
+					goto prompt1;
 		}
 	}
-	else {
-		int perrito;
-		char instruccion[20];
-		perrito = read(auxi, instruccion,20);
-		printf("%d aca: %s soy %s \n", perrito, instruccion, hp->hijo);
-		close(hp->pd[0]);
-		FD *aux_fd;
-		aux_fd = ph;
-		while( !(aux_fd == NULL) ){
-			write(aux_fd->pd[1], instruccion, strlen(instruccion)+1);
-			aux_fd = aux_fd->sig;
+		write(aux_fd->pd[1], lectura, strlen(lectura)+1);
+resul:	read(rs[0], resultado,1000);
+		printf("%s\n", resultado);
+		goto prompt1;
+	}
+	else { 
+		/** 
+		*****************************************
+			   Comunicacion entre procesos
+		*****************************************
+		**/
+
+		int status;
+		status = 420;
+		char instruccion[100];
+		
+prompt2:
+		while ( status != 0 ){
+			int aux1, aux2;
+			FD *aux_fd;
+			status = read(auxi, instruccion,100);
+			char *tokken;
+			char *direccion;
+			char *direccion1;
+			tokken = malloc(sizeof(instruccion)+1);
+
+
+			strcpy(tokken, instruccion);
+			direccion = (char *)malloc(sizeof(instruccion)+1);
+			direccion = strtok(tokken, "\ ");
+			direccion = strtok(NULL,"\ ");
+			direccion = strtok(direccion, "/");
+
+			aux1 = 0;
+			while ( strcmp(direccion, hp->hijo) ) {
+				direccion = strtok(NULL, "/");
+				aux1++;
+			}
+			direccion = strtok(NULL, "/");
+			aux1++;
+
+			strcpy(tokken, instruccion);
+			direccion1 = (char *)malloc(sizeof(instruccion)+1);
+			direccion1 = strtok(tokken, "\ ");
+			direccion1 = strtok(NULL,"\ ");
+			direccion1 = strtok(direccion1, "/");
+
+			aux2 = 0;
+			while ( direccion1 != NULL ) {
+				direccion1 = strtok(NULL, "/");
+				aux2++;
+			}
+			
+			if ( aux1 == aux2 ) {
+				// Ejecutar Instruccion
+				char *out = "ejecuto instruccion soy hijo";
+				write(rs[1],out, strlen(out)+1);
+			}
+			else {
+				aux_fd = ph;
+				while ( strcmp(aux_fd->hijo, direccion) ){
+						aux_fd = aux_fd->sig;				
+						if ( aux_fd == NULL ){
+							printf("La ruta del comando no existe\n");
+							goto prompt2;
+						}
+				}
+				write(aux_fd->pd[1], instruccion, strlen(instruccion)+1);
+			}
+
 		}
 
 	} 

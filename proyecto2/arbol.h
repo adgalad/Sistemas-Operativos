@@ -16,6 +16,7 @@
 
 typedef struct fd_t {
 	int pd[2];
+	int rs[2];
 	char *hijo;
 	struct fd_t* sig;
 }FD;
