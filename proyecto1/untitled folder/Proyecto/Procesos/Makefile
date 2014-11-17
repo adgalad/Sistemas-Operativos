@@ -1,14 +1,12 @@
-all: ordenArchivo-p hoja
-ordenArchivo-p: ordenArchivo-p.o funciones.o 
-	gcc -o ordenArchivo-p ordenArchivo-p.o funciones.o 
-hoja: hoja.o funciones.o
-	gcc -o hoja hoja.o funciones.o
-ordenArchivo-p.o: ordenArchivo-p.c funciones.h
-	gcc -c ordenArchivo-p.c funciones.c
-hoja.o: hoja.c funciones.h
-	gcc -c hoja.c funciones.c
-funciones.o: funciones.c funciones.h	
-	gcc -c funciones.c funciones.h 
+fssh: main.o Shell.o Lista.o
+	gcc -o fssh main.o Lista.o Shell.o  
+
+main.o: main.c Shell.h Lista.h
+	gcc -c main.c Shell.c Lista.c
+Shell.o: Shell.c Shell.h Lista.h
+	gcc -c Shell.c Shell.h Lista.h
+Lista.o: Lista.c Lista.h	
+	gcc -c Lista.c Lista.h 
 
 cleanAll:
 	rm *.o ordenArchivo-p
