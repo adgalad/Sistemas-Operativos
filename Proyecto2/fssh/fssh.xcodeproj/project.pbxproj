@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		073C8F291A1BED140097FAE6 /* comando.c in Sources */ = {isa = PBXBuildFile; fileRef = 073C8F281A1BED140097FAE6 /* comando.c */; };
-		07BF09931A1991E7002F7554 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 07BF09921A1991E7002F7554 /* main.c */; };
+		079650191A1E8E2400D43B3C /* arbol.c in Sources */ = {isa = PBXBuildFile; fileRef = 079650171A1E8E2400D43B3C /* arbol.c */; };
+		0796501C1A1E8E2C00D43B3C /* comando.c in Sources */ = {isa = PBXBuildFile; fileRef = 0796501A1A1E8E2C00D43B3C /* comando.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,10 +24,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		073C8F281A1BED140097FAE6 /* comando.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = comando.c; sourceTree = "<group>"; };
+		079650171A1E8E2400D43B3C /* arbol.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = arbol.c; path = ../../arbol.c; sourceTree = "<group>"; };
+		079650181A1E8E2400D43B3C /* arbol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = arbol.h; path = ../../arbol.h; sourceTree = "<group>"; };
+		0796501A1A1E8E2C00D43B3C /* comando.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = comando.c; path = ../../comando.c; sourceTree = "<group>"; };
+		0796501B1A1E8E2C00D43B3C /* comando.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = comando.h; path = ../../comando.h; sourceTree = "<group>"; };
 		07BF09841A1991A6002F7554 /* fssh */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fssh; sourceTree = BUILT_PRODUCTS_DIR; };
-		07BF09911A1991E7002F7554 /* comando.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = comando.h; sourceTree = "<group>"; };
-		07BF09921A1991E7002F7554 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,9 +61,10 @@
 		07BF09861A1991A6002F7554 /* fssh */ = {
 			isa = PBXGroup;
 			children = (
-				07BF09911A1991E7002F7554 /* comando.h */,
-				073C8F281A1BED140097FAE6 /* comando.c */,
-				07BF09921A1991E7002F7554 /* main.c */,
+				079650171A1E8E2400D43B3C /* arbol.c */,
+				079650181A1E8E2400D43B3C /* arbol.h */,
+				0796501A1A1E8E2C00D43B3C /* comando.c */,
+				0796501B1A1E8E2C00D43B3C /* comando.h */,
 			);
 			path = fssh;
 			sourceTree = "<group>";
@@ -123,8 +125,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				07BF09931A1991E7002F7554 /* main.c in Sources */,
-				073C8F291A1BED140097FAE6 /* comando.c in Sources */,
+				079650191A1E8E2400D43B3C /* arbol.c in Sources */,
+				0796501C1A1E8E2C00D43B3C /* comando.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

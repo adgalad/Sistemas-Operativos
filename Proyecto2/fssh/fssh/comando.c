@@ -24,6 +24,12 @@ char** splitStr(char *str, char tok, int *n){
         resultado[1] = malloc(1);
         strcpy(resultado[1], "/");
     }
+    else if (resultado[1][0]!='/') {
+        char *aux = malloc(strlen(resultado)+1);
+        sprintf(aux, "/%s",resultado[1]);
+        free(resultado[1]);
+        resultado[1] = aux;
+    }
     return resultado;
 }
 
