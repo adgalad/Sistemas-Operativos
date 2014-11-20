@@ -211,7 +211,7 @@ shell:	printf("fssh$ ");
 	}
 		write(aux_fd->pd[1], lectura, strlen(lectura)+1);
 resul:	read(rs[0], resultado,1000);
-		printf("%s\n", resultado);
+		printf("%s", resultado);
 		goto prompt1;
 	}
 	else { 
