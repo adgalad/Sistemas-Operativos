@@ -1,5 +1,6 @@
 
 #include "arbol.h"
+#include "comando.h"
 
 int main (int argc, char** argv) {
 
@@ -8,9 +9,8 @@ int main (int argc, char** argv) {
 	int father;
 	DIR *dirp;
 	struct dirent *direntp;
-	char *ruta;
+	char *ruta = argv[1];
 	pid_t childpid;
-	ruta = argv[1];
 	father = -1;
 	FD *ph = NULL;
 	FD *hp;
@@ -194,9 +194,9 @@ shell:	printf("fssh$ ");
 		direccion = strtok(NULL,"\ ");
 		direccion = strtok(direccion, "/");
 
-		if ( direccion == NULL ) {
+		if ( direccion == NULL || !strcmp(direccion,"/")) {
 			// Ejecutar Instruccion
-			char *out = "ejecuto instruccion soy: raiz";
+			char *out = comando(lectura);
 			write(rs[1],out, strlen(out)+1);
 			goto resul;
 		}
@@ -239,6 +239,8 @@ prompt2:
 			strcpy(tokken, instruccion);
 			direccion = strtok(tokken, "\ ");
 			direccion = strtok(NULL,"\ ");
+			// meter un if si es un comando de manipulacion de archivos
+			// necesito una nueva variable local para saber que es un comando para archivos
 			direccion = strtok(direccion, "/");
 
 			aux1 = 0;
@@ -262,7 +264,7 @@ prompt2:
 			
 			if ( aux1 == aux2 ) {
 				// Ejecutar Instruccion
-				char *out = "ejecuto instruccion soy hijo";
+				char *out = comando(instruccion);
 				write(rs[1],out, strlen(out)+1);
 			}
 			else {
