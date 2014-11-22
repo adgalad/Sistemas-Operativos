@@ -258,7 +258,9 @@ resul:	read(rs[0], resultado,1000);
             direccion = strtok(tokken, " ");
             comandop = malloc(sizeof(direccion)+1);
             strcpy(comandop, direccion);
+
             direccion = strtok(NULL," ");
+
             direccion = strtok(direccion, "/");
             
             aux1 = 0;
