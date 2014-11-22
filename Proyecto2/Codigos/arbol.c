@@ -1,7 +1,6 @@
 
 #include "arbol.h"
 #include "comando.h"
-
 int main (int argc, char** argv) {
 
 	signal(SIGCHLD, childHandler);
@@ -16,6 +15,7 @@ int main (int argc, char** argv) {
 	FD *hp;
 	int rs[2];
 	int auxi;
+	chdir(argv[1]);
 
 	if (stat(ruta, &inodo) == -1 ) {
 		fprintf(stderr, "No se pudo aplicar stat sobre el archivo %s: %s \n"
@@ -71,7 +71,7 @@ directorio:
 
 skip:
 	while (( direntp = readdir(dirp)) != NULL ) {
-		if ( !strcmp(direntp->d_name, ".") || !strcmp(direntp->d_name, "..") ) {
+		if ('.' == direntp->d_name[0]) {
 			goto skip;
 		}
 
@@ -101,7 +101,8 @@ skip:
 
 				FD *ph_aux = (FD *)malloc(sizeof(FD));
 				pipe(ph_aux->pd);
-				ph_aux->hijo = direntp->d_name;
+                ph_aux->hijo = malloc(30);
+				strcpy(ph_aux->hijo, direntp->d_name);
 				ph_aux->sig = ph;
 				ph = ph_aux;
 				
@@ -178,7 +179,7 @@ shell:	printf("fssh$ ");
 		***************************************************************
 		**/
 
-		if ( !strcmp(lectura, "exit") ){
+		if ( !strcmp(lectura, "quit") ){
 			aux_fd = ph;
 			while ( aux_fd != NULL ) {
 				ph = aux_fd->sig;
@@ -189,9 +190,13 @@ shell:	printf("fssh$ ");
 			}
 		}
 
+		if ( !strcmp(lectura, "find") ){
+			//Ejecute codigo de find
+		}
+
 		strcpy(tokken, lectura);
-		direccion = strtok(tokken, "\ ");
-		direccion = strtok(NULL,"\ ");
+		direccion = strtok(tokken, " ");
+		direccion = strtok(NULL," ");
 		direccion = strtok(direccion, "/");
 
 		if ( direccion == NULL || !strcmp(direccion,"/")) {
@@ -203,9 +208,10 @@ shell:	printf("fssh$ ");
 			
 		aux_fd = ph;
 		while ( strcmp(aux_fd->hijo, direccion) ){
-				aux_fd = aux_fd->sig;				
+            printf("{{ %s == %s }}\n",aux_fd->hijo, direccion);
+				aux_fd = aux_fd->sig;
 				if ( aux_fd == NULL ){
-					printf("La ruta del comando no existe\n");
+					printf("La ruta del comando no existe1\n");
 					goto prompt1;
 		}
 	}
@@ -233,11 +239,14 @@ prompt2:
 			char *tokken;
 			char *direccion;
 			char *direccion1;
+			char *comandop;
 			tokken = malloc(sizeof(instruccion)+1);
 
 
 			strcpy(tokken, instruccion);
 			direccion = strtok(tokken, "\ ");
+			comandop = malloc(sizeof(direccion)+1);
+			strcpy(comandop, direccion);
 			direccion = strtok(NULL,"\ ");
 			// meter un if si es un comando de manipulacion de archivos
 			// necesito una nueva variable local para saber que es un comando para archivos
@@ -268,11 +277,35 @@ prompt2:
 				write(rs[1],out, strlen(out)+1);
 			}
 			else {
+			/**
+			*******************************************************************
+				Verificacion si el ultimo nombre de la ruta es un directorio
+										o un archivo
+			*******************************************************************
+			**/
+
+			if ( aux2 - aux1 == 1 ) {
+				if ( !strcmp(comandop, "ls") ) {
+					aux_fd = ph;
+					while ( strcmp(aux_fd->hijo, direccion) ){
+						aux_fd = aux_fd->sig;
+						if ( aux_fd == NULL ) {
+							//Ejecutar Instruccion
+						}
+					}
+
+				}
+				else {
+					//Ejecutar instruccion 
+				}
+				free(comandop);
+			}
+
 				aux_fd = ph;
 				while ( strcmp(aux_fd->hijo, direccion) ){
 						aux_fd = aux_fd->sig;				
 						if ( aux_fd == NULL ){
-							printf("La ruta del comando no existe\n");
+							printf("La ruta del comando no existe\n %s\n");
 							goto prompt2;
 						}
 				}

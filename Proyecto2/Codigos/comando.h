@@ -27,7 +27,7 @@ char **interprete(char *comando, int *n);
 char *comando(char *cmd);
 
 
-const char *infoFile(struct stat *s, char *name);
+const char *infoFile(char *name);
 
 
 char *ls(int argc, char **argv);
@@ -37,6 +37,9 @@ char *cat(int argc, char **argv);
 
 
 char *cp(int argc, char**argv);
+
+
+char *find(int argc, char **argv);
 
 
 char *rm(int argc,char **argv);

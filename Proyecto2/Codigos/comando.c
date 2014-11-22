@@ -9,7 +9,7 @@
 #include "comando.h"
 
 char** splitStr(char *str, char tok, int *n){
-    char **resultado = (char **)malloc(3*6);
+    char **resultado = (char **)malloc(sizeof(char*)*6);
     int i,j=0;
     resultado[j++] = str;
     for (i = 0; str[i]!='\0'; i++) {
@@ -24,7 +24,7 @@ char** splitStr(char *str, char tok, int *n){
         resultado[1] = malloc(1);
         strcpy(resultado[1], "/");
     }
-    else if (resultado[1][0]!='/') {
+    else if (resultado[1]!=NULL && resultado[1][0]!='/') {
         char *aux = malloc(strlen(resultado[1])+1);
         sprintf(aux, "/%s",resultado[1]);
         free(resultado[1]);
@@ -43,7 +43,7 @@ char **interprete(char *comando, int *n){
         !strcmp(res[0], "ls")
         )
     {
-        char *c = malloc(32);
+        char *c = (char*)malloc(32);
         strcpy(c,".");
         strcat(c,res[1]);
         DIR *dir = opendir(c);
@@ -57,35 +57,32 @@ char **interprete(char *comando, int *n){
             *n = 0;
             return res;
         }
+        free(c);
         closedir(dir);
+        
     }
     
     return res;
 }
 
 
-const char *infoFile(struct stat *s, char *name){
+const char *infoFile(char *name){
+    struct stat s;
+    stat(name, &s);
     char *buffer = malloc(80);
-    char *fecha  = malloc(30);
-    mode_t modo  = s->st_mode;
+    char *fecha  = malloc(40);
+    mode_t modo  = s.st_mode;
     char tipo    = '-';
-
-    struct passwd *pw = getpwuid(s->st_uid);
-    struct group  *gr = getgrgid(s->st_gid);
-    struct tm *tm;
-    time_t time;
-    time = s->st_mtimespec.tv_sec;
-    tm   = localtime(&time);
     
-    strftime(fecha, sizeof fecha, "%Y-%m-%d %H:%M:%S", tm);
-    
+    strcpy(fecha,ctime(&s.st_mtime));
+    fecha[strlen(fecha)-1] = ' ';
     if (S_ISLNK(modo))  tipo = 'l';
     else if (S_ISDIR(modo))  tipo = 'd';
     else if (S_ISBLK(modo))  tipo = 'b';
     else if (S_ISCHR(modo))  tipo = 'c';
     else if (S_ISFIFO(modo)) tipo = '|';
     
-    sprintf(buffer, "%c%c%c%c%c%c%c%c%c%c %d %s %s %lli %s %s",
+    sprintf(buffer, "%c%c%c%c%c%c%c%c%c%c %d %s %s %lli %s ",
             tipo,
             modo & 256 ? 'r' : '-',
             modo & 128 ? 'w' : '-',
@@ -96,13 +93,12 @@ const char *infoFile(struct stat *s, char *name){
             modo &   4 ? 'r' : '-',
             modo &   2 ? 'w' : '-',
             modo &   1 ? 'x' : '-',
-            s->st_nlink ,
-            pw->pw_name ,
-            gr->gr_name ,
-            s->st_size,
-            fecha,
-            name);
-
+            s.st_nlink ,
+            getpwuid(s.st_uid)->pw_name ,
+            getgrgid(s.st_gid)->gr_name ,
+            s.st_size,
+            fecha);
+    free(fecha);
     return (const char*) buffer;
 }
 
@@ -121,27 +117,28 @@ char *ls(int argc, char **argv){
             return buffer;
         }
         
-        sprintf(buffer,"%s\n", infoFile(&s, argv[2]));
+        sprintf(buffer,"%s\n", infoFile(c));
     }
     else {
         DIR *directorio = opendir(c);
-        struct dirent *d;
-        char *path = malloc(20);
-        strcpy(path,c);
-        strcat(path,"/");
-        strcpy(buffer,"");
-        while ((d = readdir(directorio)) != NULL)
-        {
-            if (d->d_name[0] != '.') {
-                strcpy(c,path);
-                strcat(c, d->d_name);
-                struct stat *s =(struct stat*) malloc(sizeof(struct stat));
-                stat(c,s);
-                strcat(buffer,infoFile(s, d->d_name));
-                strcat(buffer, "\n");
+        if (directorio != NULL) {
+            struct dirent *d;
+            char *path = malloc(20);
+            strcpy(path,c);
+            strcat(path,"/");
+            strcpy(buffer,"");
+            while ((d = readdir(directorio)) != NULL)
+            {
+                if (d->d_name[0] != '.') {
+                    strcpy(c,path);
+                    strcat(c, d->d_name);
+                    strcat(buffer,infoFile(c));
+                    strcat(buffer, d->d_name);
+                    strcat(buffer, "\n");
+                }
             }
+            closedir(directorio);
         }
-        closedir(directorio);
     }
     return buffer;
 }
@@ -193,6 +190,24 @@ char *cp(int argc, char**argv){
     }
     fwrite(contenido, 1, strlen(contenido), file);
     fclose(file);
+    return "";
+}
+
+char *find(int argc, char **argv){
+    char *c = malloc(100);
+    sprintf(c, ".%s",argv[1]);
+    
+    DIR *dir = opendir(c);
+    if (dir != NULL) {
+        struct dirent *d;
+        char *buffer = malloc(512);
+        strcpy(buffer,"");
+        while ((d=readdir(dir)) != NULL) {
+            strcat(buffer, strstr(d->d_name, argv[2]));
+            strcat(buffer, "\n");
+        }
+        return buffer;
+    }
     return "";
 }
 
@@ -292,5 +307,6 @@ char *comando(char *cmd){
     else {
         sprintf(buffer, "-fssh: %s: Es un directorio\n",argv[1]);
     }
+    free(argv);
     return buffer;
 }
