@@ -46,6 +46,7 @@ char **interprete(char *comando, int *n){
         strcpy(c,".");
         strcat(c,res[1]);
         DIR *dir = opendir(c);
+        free(c);
         if (dir == NULL) {
             int i;
             for( i = (int)strlen(res[1]) -1 ; res[1][i] != '/' && i > 0 ; i--);
@@ -57,7 +58,6 @@ char **interprete(char *comando, int *n){
             *n = 0;
             return res;
         }
-        free(c);
         closedir(dir);
         
     }
@@ -70,7 +70,7 @@ const char *infoFile(char *name){
     struct stat s;
     stat(name, &s);
     char *buffer = malloc(80);
-    char *fecha  = malloc(40);
+    char fecha[100];
     mode_t modo  = s.st_mode;
     char tipo    = '-';
     
@@ -98,7 +98,6 @@ const char *infoFile(char *name){
             getgrgid(s.st_gid)->gr_name ,
             s.st_size,
             fecha);
-    free(fecha);
     return (const char*) buffer;
 }
 
@@ -114,9 +113,9 @@ char *ls(int argc, char **argv){
         struct stat s;
         if(stat(c,&s) != 0){
             sprintf(buffer,"No such file\n");
-            return buffer;
+            free(c);
+            return "";
         }
-        
         sprintf(buffer,"%s%s\n", infoFile(c),argv[2]);
     }
     else {
@@ -140,6 +139,7 @@ char *ls(int argc, char **argv){
             closedir(directorio);
         }
     }
+    free(c);
     return buffer;
 }
 
@@ -148,7 +148,7 @@ char* cat(int argc, char **argv){
     char *c = malloc(20);
     sprintf(c,".%s/%s",argv[1],argv[2]);
     FILE *file = fopen(c, "rb");
-    
+    free(c);
     if (file == NULL) {
         return NULL;
     }
@@ -161,7 +161,8 @@ char* cat(int argc, char **argv){
     contenido = malloc(fileSize+1);
     fread(contenido,1,fileSize,file);
     fclose(file);
-    strcat(contenido,"\n");
+    if (strlen(contenido) != 0 && contenido[strlen(contenido)-1]!='\n')
+        strcat(contenido,"\n");
     return contenido;
 }
 
@@ -174,8 +175,10 @@ char *cp(int argc, char**argv){
     char *contenido = cat(3,arg);
     if (contenido == NULL) {
         sprintf(buffer, "-fssh: %s/%s: No existe el archivo\n",arg[1],arg[2]);
+        free(arg);
         return buffer;
     }
+    free(arg);
     char *c = malloc(100);
     sprintf(c, ".%s",argv[2]);
     DIR *directorio = opendir(c);
@@ -203,11 +206,15 @@ char *find(int argc, char **argv){
         char *buffer = malloc(512);
         strcpy(buffer,"");
         while ((d=readdir(dir)) != NULL) {
-            strcat(buffer, strstr(d->d_name, argv[2]));
-            strcat(buffer, "\n");
+            if (d->d_name[0] != '.') {
+                strcat(buffer, strstr(d->d_name, argv[2]));
+                strcat(buffer, "\n");
+            }
         }
+        free(c);
         return buffer;
     }
+    free(c);
     return "";
 }
 
@@ -220,9 +227,10 @@ char *rm(int argc,char **argv){
     {
         char *buffer = malloc(128);
         sprintf(buffer, "-fssh: %s: No existe el archivo\n",c);
+        free(c);
         return buffer;
     }
-    
+    free(c);
     return "";
 }
 
@@ -235,10 +243,11 @@ char *mkdir_(int argc, char **argv){
         char *buffer = malloc(128);
         sprintf(buffer, "-fssh: %s: Ya existe el directorio\n",c);
         closedir(dir);
+        free(c);
         return buffer;
     }
-    closedir(dir);
     mkdir(c, 0755);
+    free(c);
     return "";
 }
 
@@ -250,6 +259,7 @@ char *rmdir_(int argc, char **argv){
         char *buffer = malloc(128);
         sprintf(buffer, "-fssh: %s: No existe el directorio\n",c);
         closedir(dir);
+        free(c);
         return buffer;
     }
     struct dirent *d;
@@ -258,11 +268,15 @@ char *rmdir_(int argc, char **argv){
             char *buffer = malloc(128);
             sprintf(buffer, "-fssh: %s: El directorio no esta vacio\n",c);
             closedir(dir);
+            free(c);
+            free(d);
             return buffer;
         }
     }
     closedir(dir);
     if (rmdir(c) < 0) printf("-fssh: %s El directorio no pudo ser borrado\n",c);
+    free(c);
+    free(d);
     return "";
 }
 

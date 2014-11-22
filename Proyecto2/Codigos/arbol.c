@@ -1,6 +1,10 @@
 
 #include "arbol.h"
 #include "comando.h"
+
+
+
+
 int main (int argc, char** argv) {
     
     signal(SIGCHLD, childHandler);
@@ -176,7 +180,7 @@ prompt1:
         
         strcpy(tokken, lectura);
         direccion = strtok(tokken, " ");
-        comandop = malloc(strlen(direccion)+1);
+        comandop = malloc(sizeof(direccion)+1);
         strcpy(comandop, direccion);
         direccion = strtok(NULL," ");
         direccion = strtok(direccion, "/");
@@ -194,18 +198,18 @@ prompt1:
                 close(aux_fd->pd[1]);
                 free(aux_fd);
                 aux_fd = ph;
-                exit(0);
             }
             free(comandop);
+            exit(0);
         }
         
-        else if ( !strcmp(comandop, "find") ){
+        if ( !strcmp(comandop, "find") ){
             //Ejecute codigo de find
             free(comandop);
         }
         
         
-        else if ( direccion == NULL || !strcmp(direccion,"/")) {
+        if ( direccion == NULL || !strcmp(direccion,"/")) {
             // Ejecutar Instruccion
             char *out = comando(lectura);
             write(rs[1],out, strlen(out)+1);
@@ -215,23 +219,15 @@ prompt1:
         aux_fd = ph;
         while ( strcmp(aux_fd->hijo, direccion) ){
             aux_fd = aux_fd->sig;
-            
-            
             if ( aux_fd == NULL ){
-                if ( !strcmp(comandop, "ls") ) {
-                    char *out = comando(lectura);
-                    write(rs[1],out, strlen(out)+1);
-                    free(comandop);
-                    goto resul;
-                }
-                else {
-                    printf("La ruta del comando no existe1\n");
-                    goto prompt1;
-                }
+                char *out = comando(lectura);
+                write(rs[1],out, strlen(out)+1);
+                free(comandop);
+                goto resul;
             }
         }
         write(aux_fd->pd[1], lectura, strlen(lectura)+1);
-    resul:	read(rs[0], resultado,1000);
+resul:	read(rs[0], resultado,1000);
         printf("%s", resultado);
         goto prompt1;
     }
@@ -259,12 +255,10 @@ prompt1:
             
             
             strcpy(tokken, instruccion);
-            direccion = strtok(tokken, "\ ");
+            direccion = strtok(tokken, " ");
             comandop = malloc(sizeof(direccion)+1);
             strcpy(comandop, direccion);
-            direccion = strtok(NULL,"\ ");
-            // meter un if si es un comando de manipulacion de archivos
-            // necesito una nueva variable local para saber que es un comando para archivos
+            direccion = strtok(NULL," ");
             direccion = strtok(direccion, "/");
             
             aux1 = 0;
@@ -276,8 +270,8 @@ prompt1:
             aux1++;
             
             strcpy(tokken, instruccion);
-            direccion1 = strtok(tokken, "\ ");
-            direccion1 = strtok(NULL,"\ ");
+            direccion1 = strtok(tokken, " ");
+            direccion1 = strtok(NULL," ");
             direccion1 = strtok(direccion1, "/");
             
             aux2 = 0;
@@ -298,21 +292,29 @@ prompt1:
                  o un archivo
                  *******************************************************************
                  **/
-                
+
                 if ( aux2 - aux1 == 1 ) {
+                    
                     if ( !strcmp(comandop, "ls") ) {
-                        aux_fd = ph;
-                        while ( 1 ){
-                            aux_fd = aux_fd->sig;
-                            if ( aux_fd == NULL ) {
-                                char *out = comando(instruccion);
-                                write(rs[1],out, strlen(out)+1);
-                                break;
-                            }
-                            else if (!strcmp(aux_fd->hijo, direccion)) {
-                                write(aux_fd->pd[1], instruccion,
-                                      strlen(instruccion)+1);
-                                break;
+                        
+                        if (ph == NULL) {
+                            char *out = comando(instruccion);
+                            write(rs[1],out, strlen(out)+1);
+                        }
+                        else {
+                            aux_fd = ph;
+                            while (aux_fd != NULL){
+                                if ( aux_fd == NULL ) {
+                                    char *out = comando(instruccion);
+                                    write(rs[1],out, strlen(out)+1);
+                                    break;
+                                }
+                                else if (!strcmp(aux_fd->hijo, direccion)) {
+                                    write(aux_fd->pd[1], instruccion,
+                                          strlen(instruccion)+1);
+                                    break;
+                                }
+                                aux_fd = aux_fd->sig;
                             }
                         }
                     }
@@ -322,19 +324,9 @@ prompt1:
                     }
                     free(comandop);
                 }
-                /**
-                 aux_fd = ph;
-                 while ( strcmp(aux_fd->hijo, direccion) ){
-                 aux_fd = aux_fd->sig;				
-                 if ( aux_fd == NULL ){
-                 printf("La ruta del comando no existe\n %s\n");
-                 goto prompt2;
-                 }
-                 }
-                 write(aux_fd->pd[1], instruccion, strlen(instruccion)+1);
-                 **/
             }
             free(tokken);
+            goto prompt2;
         }
         
     } 
