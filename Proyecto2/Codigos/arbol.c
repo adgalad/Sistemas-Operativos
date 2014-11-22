@@ -194,9 +194,9 @@ prompt1:
                 close(aux_fd->pd[1]);
                 free(aux_fd);
                 aux_fd = ph;
-                exit(0);
             }
             free(comandop);
+            exit(0);
         }
         
         else if ( !strcmp(comandop, "find") ){
@@ -263,8 +263,6 @@ prompt1:
             comandop = malloc(sizeof(direccion)+1);
             strcpy(comandop, direccion);
             direccion = strtok(NULL,"\ ");
-            // meter un if si es un comando de manipulacion de archivos
-            // necesito una nueva variable local para saber que es un comando para archivos
             direccion = strtok(direccion, "/");
             
             aux1 = 0;
