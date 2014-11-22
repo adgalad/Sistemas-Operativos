@@ -27,7 +27,6 @@ char** splitStr(char *str, char tok, int *n){
     else if (resultado[1]!=NULL && resultado[1][0]!='/') {
         char *aux = malloc(strlen(resultado[1])+1);
         sprintf(aux, "/%s",resultado[1]);
-        free(resultado[1]);
         resultado[1] = aux;
     }
     return resultado;
@@ -35,7 +34,7 @@ char** splitStr(char *str, char tok, int *n){
 
 char **interprete(char *comando, int *n){
     char **res = splitStr(comando,' ',n);
-
+    
     if (!strcmp(res[0], "cp") ||
         !strcmp(res[0], "mv") ||
         !strcmp(res[0], "rm") ||
@@ -52,6 +51,7 @@ char **interprete(char *comando, int *n){
             for( i = (int)strlen(res[1]) -1 ; res[1][i] != '/' && i > 0 ; i--);
             res[1][i] = '\0';
             res[(*n)++] = &res[1][i+1];
+            return res;
         }
         else if (strcmp(res[0], "ls")){
             *n = 0;
@@ -82,7 +82,7 @@ const char *infoFile(char *name){
     else if (S_ISCHR(modo))  tipo = 'c';
     else if (S_ISFIFO(modo)) tipo = '|';
     
-    sprintf(buffer, "%c%c%c%c%c%c%c%c%c%c %d %s %s %lli %s ",
+    sprintf(buffer, "%c%c%c%c%c%c%c%c%c%c %d %s %s %lli %s",
             tipo,
             modo & 256 ? 'r' : '-',
             modo & 128 ? 'w' : '-',
@@ -107,7 +107,7 @@ char *ls(int argc, char **argv){
     strcpy(c,".");
     strcat(c, argv[1]);
     char *buffer = malloc(1024);
-
+    
     if (argc == 3){
         strcat(c, "/");
         strcat(c, argv[2]);
@@ -117,7 +117,7 @@ char *ls(int argc, char **argv){
             return buffer;
         }
         
-        sprintf(buffer,"%s\n", infoFile(c));
+        sprintf(buffer,"%s%s\n", infoFile(c),argv[2]);
     }
     else {
         DIR *directorio = opendir(c);
