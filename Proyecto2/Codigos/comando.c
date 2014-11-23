@@ -320,6 +320,9 @@ char *comando(char *cmd, char **argv, char* output){
         else if(!strcmp(argv[0], "quit")) {
             exit(0);
         }
+        else {
+            sprintf(output,"-fssh: %s: No existe el comando\n",argv[0]);
+        }
     }
     else {
         sprintf(output, "-fssh: %s: Es un directorio\n",argv[1]);

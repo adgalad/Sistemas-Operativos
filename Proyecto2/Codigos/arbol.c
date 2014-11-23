@@ -101,7 +101,6 @@ void hijo(int rs[2], FD *ph, FD *hp, int auxi , char ** argumentos, char *out)
         int aux1, aux2;
         FD *aux_fd;
         status = read(auxi, instruccion,100);
-        printf("%s\n",instruccion);
         char *tokken;
         char *direccion;
         char *direccion1;
