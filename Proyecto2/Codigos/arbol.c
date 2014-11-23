@@ -26,8 +26,27 @@ void crearHijo (int *father, FD *ph, FD *hp, int *rs){
         ph = aux_fd->sig;
         free(aux_fd);
     }
-    printf("aca%s\n", hp->hijo);
 
+}
+
+void arbolActivo ( int father, FD *ph, FD *hp, int rs[2], char **argumentos, char *out, int auxi ) {
+    if ( father == -1 ){
+        padre(rs, ph, hp, argumentos, out, &father);
+    }
+    else {
+        hijo(rs, ph, hp, auxi, argumentos, out, &father);
+        close(rs[1]);
+        FD *aux_fd;
+        aux_fd = ph;
+        while( !(aux_fd == NULL) ){
+            close(aux_fd->pd[1]);
+            aux_fd = aux_fd->sig;
+            free(ph);
+            ph = aux_fd;
+        }
+    }
+    
+    
 }
 
 
@@ -39,6 +58,7 @@ void padre(int rs[2], FD *ph, FD *hp, char **argumentos, char *out, int* father)
     char resultado[1000];
     char *direccion;
     char *comandop;
+    char *direccion1;
     while(1)  {
         printf("fssh$ ");
         fgets(lectura,100, stdin);
@@ -47,7 +67,7 @@ void padre(int rs[2], FD *ph, FD *hp, char **argumentos, char *out, int* father)
         }
         else {
             FD *aux_fd;
-            
+            FD *aux_fd1;
             if ( lectura[strlen(lectura)-1] == '\n' ){
                 lectura[strlen(lectura)-1] = '\0';
             }
@@ -67,6 +87,8 @@ void padre(int rs[2], FD *ph, FD *hp, char **argumentos, char *out, int* father)
             
             if ( !strcmp(comandop, "quit") ){
                 aux_fd = ph;
+                close(rs[0]);
+                close(rs[1]);
                 while ( aux_fd != NULL ) {
                     ph = aux_fd->sig;
                     close(aux_fd->pd[1]);
@@ -84,22 +106,27 @@ void padre(int rs[2], FD *ph, FD *hp, char **argumentos, char *out, int* father)
 
             
             
-            if ( direccion == NULL || !strcmp(direccion,"/")) {
+            if ( ( direccion == NULL || !strcmp(direccion,"/") ) 
+                & !strcmp(comandop,"ls") ){
                 // Ejecutar Instruccion
                 char lecturals[5] = "ls /\n";
                 comando(lecturals,argumentos, out);
                 write(rs[1],out, strlen(out)+1);
                 goto resul;
             }
+
+
             
             aux_fd = ph;
             while ( strcmp(aux_fd->hijo, direccion) ){
+                aux_fd1 = aux_fd;
                 aux_fd = aux_fd->sig;
                 if ( aux_fd == NULL ){
                     comando(lectura,argumentos, out);
                     if ( !strcmp(comandop, "mkdir") ) {
                         if ( strcmp(out, "0") ) {
-                            //No se creo el proceso
+                            //No se creo el directorio
+                            goto resul;
                         }
                         else {
                             sprintf(out,"");
@@ -111,27 +138,41 @@ void padre(int rs[2], FD *ph, FD *hp, char **argumentos, char *out, int* father)
                             ph = ph_aux;
                             pid_t childpid;
                             if ( (childpid = fork()) == 0 )  {
-                                crearHijo(father, ph, hp, &rs[0]);                   
+                                crearHijo(father, ph, hp, &rs[0]);
+                                arbolActivo(*father, ph, hp, rs, argumentos, out, hp->pd[0]);                 
                             }
                             else {
                                 ph->id = childpid;
                                 close(ph->pd[0]);
+                                write(rs[1],out, strlen(out)+1);
+                                goto resul;
                             }
-                            
+
                         }
-                    }
-                    else if ( !strcmp(comandop, "rmdir") ){
-                        if ( strcmp(out, "0") ){
-                            //No se elimino el proceso
-                        }
-                        else {
-                            sprintf(out,"");
-                            // Manda señal de SIGKILL al hijo
-                        }
+
                     }
 
+                }
+            }
+            
+            direccion1 = strtok(direccion, "/");
+            direccion1 = strtok(NULL, "/");
+            if ( !strcmp(comandop, "rmdir") & (direccion1 == NULL) ){
+                comando(lectura,argumentos, out);
+                if ( strcmp(out, "0") ){
+                    //No se elimino el directorio
+                    goto resul;
+
+                }
+                else {
+                    sprintf(out,"");
+                    // Manda señal de SIGKILL al hijo
+                    kill(aux_fd->id, 9);
+                    aux_fd1->sig = aux_fd->sig;
+                    free(aux_fd);
                     write(rs[1],out, strlen(out)+1);
                     goto resul;
+
                 }
             }
             write(aux_fd->pd[1], lectura, strlen(lectura)+1);

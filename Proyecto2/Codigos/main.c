@@ -144,22 +144,8 @@ skip:
      *****************************************
      **/
     
-    
-    if ( father == -1 ){
-        padre(rs, ph, hp, argumentos, out, &father);
-    }
-    else {
-        hijo(rs, ph, hp, auxi, argumentos, out, &father);
-    }
-    
-    FD *aux_fd;
-    aux_fd = ph;
-    while( !(aux_fd == NULL) ){
-        close(aux_fd->pd[1]);
-        aux_fd = aux_fd->sig;
-        free(ph);
-        ph = aux_fd;
-    }
+    arbolActivo(father, ph, hp, rs, argumentos, out, auxi);
     exit(0);
-    
+
+ 
 }

@@ -26,6 +26,8 @@ typedef struct fd_t {
 
 void crearHijo (int *father, FD *ph, FD *hp, int *rs);
 
+void arbolActivo ( int father, FD *ph, FD *hp, int rs[2], char **argumentos, char *out, int auxi );
+
 void padre(int rs[2], FD *ph, FD *hp, char **argumentos, char *out, int *father);
 
 void hijo(int rs[2], FD *ph, FD *hp, int auxi , char ** argumentos, char *out, int *father);

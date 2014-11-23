@@ -333,6 +333,6 @@ char *comando(char *cmd, char **argv, char* output){
         sprintf(output, "-fssh: %s: Es un directorio\n",argv[1]);
     }
 
-    
+    printf("perroloco1\n");
     return output;
 }
