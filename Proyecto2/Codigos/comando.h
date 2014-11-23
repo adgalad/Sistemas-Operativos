@@ -18,34 +18,34 @@
 #include <sys/stat.h>
 
 
-char **splitStr(char *str, char tok, int *n);
+char **splitStr(char *str, char tok, int *n, char **resultado);
 
 
-char **interprete(char *comando, int *n);
+char **interprete(char *comando, int *n, char **res);
 
 
-char *comando(char *cmd);
+char *comando(char *cmd, char **argv, char *buffer);
 
 
-const char *infoFile(char *name);
+const char *infoFile(char *name,char *buffer);
 
 
-char *ls(int argc, char **argv);
+char *ls(int argc, char **argv,char *buffer);
 
 
 char *cat(int argc, char **argv);
 
 
-char *cp(int argc, char**argv);
+char *cp(int argc, char**argv,char *buffer);
 
 
-char *find(int argc, char **argv);
+char *find(int argc, char **argv,char *buffer);
 
 
-char *rm(int argc,char **argv);
+char *rm(int argc,char **argv,char *buffer);
 
 
-char *mkdir_(int argc, char **argv);
+char *mkdir_(int argc, char **argv,char *buffer);
 
 
-char *rmdir_(int argc, char **argv);
+char *rmdir_(int argc, char **argv,char *buffer);

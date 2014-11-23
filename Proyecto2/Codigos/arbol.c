@@ -2,9 +2,6 @@
 #include "arbol.h"
 #include "comando.h"
 
-
-
-
 int main (int argc, char** argv) {
     
     signal(SIGCHLD, childHandler);
@@ -19,6 +16,8 @@ int main (int argc, char** argv) {
     FD *hp;
     int rs[2];
     int auxi;
+    char **argumentos = (char **) malloc (sizeof(char*)*6);
+    char *out = malloc(1024);
     chdir(argv[1]);
     
     if (stat(ruta, &inodo) == -1 ) {
@@ -165,7 +164,6 @@ prompt1:
         char resultado[1000];
         char *direccion;
         char *comandop;
-        int status;
     shell:	printf("fssh$ ");
         fgets(lectura,100, stdin);
         if ( !strcmp(lectura, "\n") ) {
@@ -211,7 +209,7 @@ prompt1:
         
         if ( direccion == NULL || !strcmp(direccion,"/")) {
             // Ejecutar Instruccion
-            char *out = comando(lectura);
+            comando(lectura,argumentos, out);
             write(rs[1],out, strlen(out)+1);
             goto resul;
         }
@@ -220,14 +218,14 @@ prompt1:
         while ( strcmp(aux_fd->hijo, direccion) ){
             aux_fd = aux_fd->sig;
             if ( aux_fd == NULL ){
-                char *out = comando(lectura);
+                comando(lectura,argumentos, out);
                 write(rs[1],out, strlen(out)+1);
                 free(comandop);
                 goto resul;
             }
         }
         write(aux_fd->pd[1], lectura, strlen(lectura)+1);
-resul:	read(rs[0], resultado,1000);
+    resul:	read(rs[0], resultado,1000);
         printf("%s", resultado);
         goto prompt1;
     }
@@ -258,9 +256,9 @@ resul:	read(rs[0], resultado,1000);
             direccion = strtok(tokken, " ");
             comandop = malloc(sizeof(direccion)+1);
             strcpy(comandop, direccion);
-
+            
             direccion = strtok(NULL," ");
-
+            
             direccion = strtok(direccion, "/");
             
             aux1 = 0;
@@ -284,7 +282,7 @@ resul:	read(rs[0], resultado,1000);
             
             if ( aux1 == aux2 ) {
                 // Ejecutar Instruccion
-                char *out = comando(instruccion);
+                comando(instruccion,argumentos, out);
                 write(rs[1],out, strlen(out)+1);
             }
             else {
@@ -294,20 +292,20 @@ resul:	read(rs[0], resultado,1000);
                  o un archivo
                  *******************************************************************
                  **/
-
+                
                 if ( aux2 - aux1 == 1 ) {
                     
                     if ( !strcmp(comandop, "ls") ) {
                         
                         if (ph == NULL) {
-                            char *out = comando(instruccion);
+                            comando(instruccion,argumentos, out);
                             write(rs[1],out, strlen(out)+1);
                         }
                         else {
                             aux_fd = ph;
                             while (aux_fd != NULL){
                                 if ( aux_fd == NULL ) {
-                                    char *out = comando(instruccion);
+                                    comando(instruccion,argumentos, out);
                                     write(rs[1],out, strlen(out)+1);
                                     break;
                                 }
@@ -321,7 +319,7 @@ resul:	read(rs[0], resultado,1000);
                         }
                     }
                     else {
-                        char *out = comando(instruccion);
+                        comando(instruccion,argumentos, out);
                         write(rs[1],out, strlen(out)+1);
                     }
                     free(comandop);
@@ -331,7 +329,7 @@ resul:	read(rs[0], resultado,1000);
             goto prompt2;
         }
         
-    } 
+    }
     FD *aux_fd;
     aux_fd = ph;
     while( !(aux_fd == NULL) ){
@@ -346,7 +344,7 @@ resul:	read(rs[0], resultado,1000);
 
 /**
  *****************************************
-	Manejador de señales para los hijos.
+ Manejador de señales para los hijos.
  *****************************************
  **/
 

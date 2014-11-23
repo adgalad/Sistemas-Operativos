@@ -28,6 +28,7 @@
 		07094B4D1A1EB001000E1004 /* arbol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = arbol.h; path = ../../Codigos/arbol.h; sourceTree = "<group>"; };
 		07094B4E1A1EB001000E1004 /* comando.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = comando.c; path = ../../Codigos/comando.c; sourceTree = "<group>"; };
 		07094B4F1A1EB001000E1004 /* comando.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = comando.h; path = ../../Codigos/comando.h; sourceTree = "<group>"; };
+		07652EE41A21630200E05FC3 /* File */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = File; sourceTree = "<group>"; };
 		07BF09841A1991A6002F7554 /* fssh */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fssh; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -62,6 +63,7 @@
 			isa = PBXGroup;
 			children = (
 				07094B4C1A1EB001000E1004 /* arbol.c */,
+				07652EE41A21630200E05FC3 /* File */,
 				07094B4D1A1EB001000E1004 /* arbol.h */,
 				07094B4E1A1EB001000E1004 /* comando.c */,
 				07094B4F1A1EB001000E1004 /* comando.h */,
