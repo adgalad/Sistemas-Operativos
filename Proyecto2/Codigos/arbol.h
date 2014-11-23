@@ -1,3 +1,8 @@
+
+
+#ifndef ARBOL
+#define ARBOL
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,10 +13,7 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <signal.h>
-
-
-#ifndef ARBOL
-#define ARBOL
+#include "comando.h"
 
 
 typedef struct fd_t {
@@ -20,6 +22,10 @@ typedef struct fd_t {
 	char *hijo;
 	struct fd_t* sig;
 }FD;
+
+void padre(int rs[2], FD *ph, char **argumentos, char *out);
+
+void hijo(int rs[2], FD *ph, FD *hp, int auxi , char ** argumentos, char *out);
 
 void childHandler();
 

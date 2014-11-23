@@ -24,28 +24,28 @@ char **splitStr(char *str, char tok, int *n, char **resultado);
 char **interprete(char *comando, int *n, char **res);
 
 
-char *comando(char *cmd, char **argv, char *buffer);
+char *comando(char *cmd, char **argv, char *output);
 
 
-const char *infoFile(char *name,char *buffer);
+const char *infoFile(char *name,char *output);
 
 
-char *ls(int argc, char **argv,char *buffer);
+char *ls(int argc, char **argv,char *output);
 
 
 char *cat(int argc, char **argv);
 
 
-char *cp(int argc, char**argv,char *buffer);
+char *cp(int argc, char**argv,char *output);
 
 
-char *find(int argc, char **argv,char *buffer);
+char *find(int argc, char **argv,char *output);
 
 
-char *rm(int argc,char **argv,char *buffer);
+char *rm(int argc,char **argv,char *output);
 
 
-char *mkdir_(int argc, char **argv,char *buffer);
+char *mkdir_(int argc, char **argv,char *output);
 
 
-char *rmdir_(int argc, char **argv,char *buffer);
+char *rmdir_(int argc, char **argv,char *output);

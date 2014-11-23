@@ -68,7 +68,7 @@ char **interprete(char *comando, int *n, char **res){
 }
 
 
-const char *infoFile(char *name, char *buffer){
+const char *infoFile(char *name, char *output){
     struct stat s;
     stat(name, &s);
     char fecha[100];
@@ -83,7 +83,7 @@ const char *infoFile(char *name, char *buffer){
     else if (S_ISCHR(modo))  tipo = 'c';
     else if (S_ISFIFO(modo)) tipo = '|';
     
-    sprintf(buffer, "%c%c%c%c%c%c%c%c%c%c %d %s %s %lli %s",
+    sprintf(output, "%c%c%c%c%c%c%c%c%c%c %d %s %s %lli %s",
             tipo,
             modo & 256 ? 'r' : '-',
             modo & 128 ? 'w' : '-',
@@ -99,10 +99,10 @@ const char *infoFile(char *name, char *buffer){
             getgrgid(s.st_gid)->gr_name ,
             s.st_size,
             fecha);
-    return (const char*) buffer;
+    return (const char*) output;
 }
 
-char *ls(int argc, char **argv, char *buffer){
+char *ls(int argc, char **argv, char *output){
     char *c = malloc(20);
     strcpy(c,".");
     strcat(c, argv[1]);    
@@ -111,11 +111,12 @@ char *ls(int argc, char **argv, char *buffer){
         strcat(c, argv[2]);
         struct stat s;
         if(stat(c,&s) != 0){
-            sprintf(buffer,"No such file\n");
+            sprintf(output,"-fssh: %s/%s: No existe el archivo o directorio\n"
+                    ,argv[1],argv[2]);
             free(c);
             return "";
         }
-        sprintf(buffer,"%s%s\n", infoFile(c,buffer),argv[2]);
+        sprintf(output,"%s%s\n", infoFile(c,output),argv[2]);
     }
     else {
         DIR *directorio = opendir(c);
@@ -125,16 +126,16 @@ char *ls(int argc, char **argv, char *buffer){
             strcpy(path,c);
             strcat(path,"/");
             
-            strcpy(buffer,"");
+            strcpy(output,"");
             while ((d = readdir(directorio)) != NULL)
             {
                 if (d->d_name[0] != '.') {
                     char *b = malloc(100);
                     strcpy(c,path);
                     strcat(c, d->d_name);
-                    strcat(buffer,infoFile(c,b));
-                    strcat(buffer, d->d_name);
-                    strcat(buffer, "\n");
+                    strcat(output,infoFile(c,b));
+                    strcat(output, d->d_name);
+                    strcat(output, "\n");
                 }
             }
             closedir(directorio);
@@ -142,7 +143,7 @@ char *ls(int argc, char **argv, char *buffer){
         }
     }
     free(c);
-    return buffer;
+    return output;
 }
 
 
@@ -168,16 +169,16 @@ char* cat(int argc, char **argv){
     return contenido;
 }
 
-char *cp(int argc, char**argv,char *buffer){
+char *cp(int argc, char**argv,char *output){
     char **arg = (char **) malloc(sizeof(char*)*3);
     arg[0] = argv[0];
     arg[1] = argv[1];
     arg[2] = argv[3];
     char *contenido = cat(3,arg);
     if (contenido == NULL) {
-        sprintf(buffer, "-fssh: %s/%s: No existe el archivo\n",arg[1],arg[2]);
+        sprintf(output, "-fssh: %s/%s: No existe el archivo\n",arg[1],arg[2]);
         free(arg);
-        return buffer;
+        return output;
     }
     free(arg);
     char *c = malloc(100);
@@ -189,114 +190,117 @@ char *cp(int argc, char**argv,char *buffer){
     }
     FILE *file = fopen(c, "w");
     if (file == NULL) {
-        sprintf(buffer, "-fssh: %s: No existe el archivo o directorio\n",c);
-        return buffer;
+        sprintf(output, "-fssh: %s: No existe el archivo o directorio\n",c);
+        return output;
     }
     fwrite(contenido, 1, strlen(contenido), file);
     fclose(file);
     return "";
 }
 
-char *find(int argc, char **argv,char *buffer){
+char *find(int argc, char **argv,char *output){
     char *c = malloc(100);
     sprintf(c, ".%s",argv[1]);
     
     DIR *dir = opendir(c);
     if (dir != NULL) {
         struct dirent *d;
-        strcpy(buffer,"");
+        strcpy(output,"");
         while ((d=readdir(dir)) != NULL) {
             if (d->d_name[0] != '.') {
-                strcat(buffer, strstr(d->d_name, argv[2]));
-                strcat(buffer, "\n");
+                strcat(output, strstr(d->d_name, argv[2]));
+                strcat(output, "\n");
             }
         }
         free(c);
-        return buffer;
+        return output;
     }
     free(c);
     return "";
 }
 
-char *rm(int argc,char **argv,char *buffer){
+char *rm(int argc,char **argv,char *output){
     char *c = malloc(100);
     
     sprintf(c,".%s/%s",argv[1],argv[2]);
     
     if (remove(c) == -1)
     {
-        sprintf(buffer, "-fssh: %s: No existe el archivo\n",c);
+        sprintf(output, "-fssh: %s: No existe el archivo\n",c);
         free(c);
-        return buffer;
+        return output;
     }
     free(c);
     return "";
 }
 
-char *mkdir_(int argc, char **argv, char *buffer){
+char *mkdir_(int argc, char **argv, char *output){
     char *c = malloc(100);
     sprintf(c,".%s",argv[1]);
-    printf("%s\n",c);
     DIR *dir = opendir(c);
     if ( dir != NULL) {
-        sprintf(buffer, "-fssh: %s: Ya existe el directorio\n",c);
+        sprintf(output, "-fssh: %s: Ya existe el directorio\n",c);
         closedir(dir);
         free(c);
-        return buffer;
+        return output;
     }
     mkdir(c, 0755);
     free(c);
     return "";
 }
 
-char *rmdir_(int argc, char **argv, char *buffer){
+char *rmdir_(int argc, char **argv, char *output){
     char *c = malloc(100);
     sprintf(c, ".%s",argv[1]);
     DIR *dir = opendir(c);
     if ( dir == NULL) {
-        sprintf(buffer, "-fssh: %s: No existe el directorio\n",c);
+        sprintf(output, "-fssh: %s: No existe el directorio\n",argv[1]);
         closedir(dir);
         free(c);
-        return buffer;
+        return output;
     }
     struct dirent *d;
     while ((d = readdir(dir)) != NULL){
         if (d->d_name[0] != '.') {
-            char *buffer = malloc(128);
-            sprintf(buffer, "-fssh: %s: El directorio no esta vacio\n",c);
+            char *output = malloc(128);
+            sprintf(output, "-fssh: %s: El directorio no esta vacio\n",argv[1]);
             closedir(dir);
             free(c);
             free(d);
-            return buffer;
+            return output;
         }
     }
     closedir(dir);
-    if (rmdir(c) < 0) printf("-fssh: %s El directorio no pudo ser borrado\n",c);
+    if (rmdir(c) < 0) {
+        sprintf(output,"-fssh: %s El directorio no pudo ser borrado\n",argv[1]);
+        return output;
+    }
     free(c);
     free(d);
     return "";
 }
 
-char *comando(char *cmd, char **argv, char* buffer){
+char *comando(char *cmd, char **argv, char* output){
     int argc=0;
     interprete(cmd, &argc, argv);
-    strcpy(buffer, "");
+    strcpy(output, "");
+    
     if (argc > 0) {
         if(!strcmp(argv[0], "ls")) {
-            ls(argc, argv,buffer);
+            ls(argc, argv,output);
         }
         else if(!strcmp(argv[0], "cat")) {
             char *c = cat(argc, argv);
-            if(buffer == NULL) {
-                buffer = malloc(100);
-                sprintf(buffer,"-fssh: %s: No existe el archivo\n",argv[2]);
+            if(c == NULL) {
+                sprintf(output,"-fssh: %s/%s: No existe el archivo\n",
+                        argv[1],argv[2]);
             }
             else {
-                strcpy(buffer,c);
+                strcpy(output,c);
             }
         }
         else if(!strcmp(argv[0], "cp")) {
-            cp(argc, argv,buffer);
+            cp(argc, argv,output);
         }
         else if(!strcmp(argv[0], "mv")) {
             
@@ -305,22 +309,22 @@ char *comando(char *cmd, char **argv, char* buffer){
             
         }
         else if(!strcmp(argv[0], "rm")) {
-            rm(argc, argv,buffer);
+            rm(argc, argv,output);
         }
         else if(!strcmp(argv[0], "mkdir")) {
-            mkdir_(argc, argv,buffer);
+            mkdir_(argc, argv,output);
         }
         else if(!strcmp(argv[0], "rmdir")) {
-            rmdir_(argc, argv,buffer);
+            rmdir_(argc, argv,output);
         }
         else if(!strcmp(argv[0], "quit")) {
             exit(0);
         }
     }
     else {
-        sprintf(buffer, "-fssh: %s: Es un directorio\n",argv[1]);
+        sprintf(output, "-fssh: %s: Es un directorio\n",argv[1]);
     }
 
     
-    return buffer;
+    return output;
 }
