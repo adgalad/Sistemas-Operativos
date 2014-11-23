@@ -11,7 +11,8 @@
 
 int main (int argc, char** argv) {
     
-    signal(SIGCHLD, childHandler);
+    signal(SIGINT, Handler);
+    signal(SIGQUIT, Handler);
     struct stat inodo;
     int father = -1;
     DIR *dirp;
@@ -25,7 +26,7 @@ int main (int argc, char** argv) {
     char **argumentos = (char **) malloc (sizeof(char*)*6);
     char *out = malloc(1024);
     chdir(argv[1]);
-    
+
     if (stat(ruta, &inodo) == -1 ) {
         fprintf(stderr, "No se pudo aplicar stat sobre el archivo %s: %s \n"
                 ,ruta, strerror(errno));
@@ -42,7 +43,7 @@ directorio:
     
     /**
      *************
-     Cable
+         Cable
      *************
      **/
     
@@ -53,8 +54,8 @@ directorio:
     
     /**
      ******************************************************
-     Imprimimos la Ruta actual y la modificamos para
-     que pueda ser interpretada como ruta absoluta
+        Imprimimos la Ruta actual y la modificamos para
+         que pueda ser interpretada como ruta absoluta
      ******************************************************
      **/
     
@@ -62,15 +63,24 @@ directorio:
         strcat(ruta,"/");
     }
     
-    if ( (dirp = opendir(ruta)) == NULL ) {
-        fprintf(stderr, "No se pudo abrir el directorio\n");
-        exit(1);
+    if ( ! strcmp(ruta, "../") ) {
+        strcpy(ruta,"./");
+        if ( (dirp = opendir(ruta) ) == NULL ){
+            fprintf(stderr, "No se pudo abrir el directorio\n");
+            exit(1);
+        }
+    }
+    else {
+       if ( (dirp = opendir(ruta)) == NULL ) {
+            fprintf(stderr, "No se pudo abrir el directorio\n");
+            exit(1);
+        }
     }
     
     
     /**
      ****************************************************
-     Buscamos en la tabla de inodos del directorio
+         Buscamos en la tabla de inodos del directorio
      ****************************************************
      **/
     
@@ -79,10 +89,9 @@ skip:
         if ('.' == direntp->d_name[0]) {
             goto skip;
         }
-        
         /**
          ***********************************************************
-         Construccion de la ruta absoluta del subdirectorio
+             Construccion de la ruta absoluta del subdirectorio
          ***********************************************************
          **/
         
@@ -100,7 +109,7 @@ skip:
             if ( inodo.st_mode & S_IFDIR ) {
                 /**
                  ***********************************************************
-                 Estructura auxiliar para comunicacion con los hijos
+                     Estructura auxiliar para comunicacion con los hijos
                  ***********************************************************
                  **/
                 
@@ -113,35 +122,12 @@ skip:
                 
                 if ( (childpid = fork()) == 0 )  {
                     ruta = aux;
-                    
-                    if ( father != -1 ) {
-                        father = 0;
-                        close(hp->pd[0]);	// Cierro la tuberia del abuelo
-                        free(hp);			// Libero la estructura copiada del abuelo
-                        close(rs[0]);		// Cierro la tuberia de lectura para resultado
-                    }
-                    
-                    father = 0;
-                    hp = ph;
-                    close(hp->pd[1]);
-                    ph = ph->sig;
-                    
-                    /**
-                     *********************************************************
-                     Limpieza de la estructura de hijos copiada del padre
-                     *********************************************************
-                     **/
-                    while( !(ph == NULL) ){
-                        FD *aux_fd;
-                        aux_fd = ph;
-                        ph = aux_fd->sig;
-                        free(aux_fd);
-                    }
-                    
+                    crearHijo(&father, ph, hp, &rs[0]);                   
                     goto directorio;
                     
                 }
                 else {
+                    ph->id = childpid;
                     close(ph->pd[0]);
                 }
             }
@@ -154,16 +140,16 @@ skip:
     
     /**
      *****************************************
-     Entrada de Comandos
+                Entrada de Comandos
      *****************************************
      **/
     
     
     if ( father == -1 ){
-        padre(rs, ph, argumentos, out);
+        padre(rs, ph, hp, argumentos, out, &father);
     }
     else {
-        hijo(rs, ph, hp, auxi, argumentos, out);
+        hijo(rs, ph, hp, auxi, argumentos, out, &father);
     }
     
     FD *aux_fd;

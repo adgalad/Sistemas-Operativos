@@ -244,8 +244,12 @@ char *mkdir_(int argc, char **argv, char *output){
         free(c);
         return output;
     }
-    mkdir(c, 0755);
+    if ( mkdir(c, 0755) == -1 ) {
+        sprintf(output, "-fssh: %s: No se pudo crear el directorio\n",c);
+    }
+
     free(c);
+    sprintf(output,"0");
     return "";
 }
 
@@ -277,6 +281,7 @@ char *rmdir_(int argc, char **argv, char *output){
     }
     free(c);
     free(d);
+    sprintf(output,"0");
     return "";
 }
 

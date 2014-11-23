@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>0838C5AE-07E0-40BD-8C23-9EBC196FB37B</string>
+	<key>IDESourceControlProjectName</key>
+	<string>fssh</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>9F3A495D0B65912C044D6C8098972F0AFE208460</key>
+		<string>github.com:adgalad/Sistemas-Operativos.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>proyecto2/Codigos/proyecto/fssh/fssh.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>9F3A495D0B65912C044D6C8098972F0AFE208460</key>
+		<string>../../../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>github.com:adgalad/Sistemas-Operativos.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>9F3A495D0B65912C044D6C8098972F0AFE208460</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>9F3A495D0B65912C044D6C8098972F0AFE208460</string>
+			<key>IDESourceControlWCCName</key>
+			<string>Sistemas_Operacion</string>
+		</dict>
+	</array>
+</dict>
+</plist>

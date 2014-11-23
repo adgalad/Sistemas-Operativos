@@ -2,20 +2,44 @@
 #include "arbol.h"
 
 
+void crearHijo (int *father, FD *ph, FD *hp, int *rs){
+    if ( *father != -1 ) {
+        *father = 0;
+        close(hp->pd[0]);   // Cierro la tuberia del abuelo
+        free(hp);           // Libero la estructura copiada del abuelo
+        close(*rs);       // Cierro la tuberia de lectura para resultado
+    }
+                    
+    *father = 0;
+    hp = ph;
+    close(hp->pd[1]);
+    ph = ph->sig;
+                    
+    /**
+    *********************************************************
+        Limpieza de la estructura de hijos copiada del padre
+    *********************************************************
+    **/
+    while( !(ph == NULL) ){
+        FD *aux_fd;
+        aux_fd = ph;
+        ph = aux_fd->sig;
+        free(aux_fd);
+    }
+    printf("aca%s\n", hp->hijo);
+
+}
 
 
 
 
-
-void padre(int rs[2], FD *ph, char **argumentos, char *out)
-{
+void padre(int rs[2], FD *ph, FD *hp, char **argumentos, char *out, int* father) {
     char lectura[100];
     char tokken[100];
     char resultado[1000];
     char *direccion;
     char *comandop;
-    while(1)
-    {
+    while(1)  {
         printf("fssh$ ");
         fgets(lectura,100, stdin);
         if ( !strcmp(lectura, "\n") ) {
@@ -37,7 +61,7 @@ void padre(int rs[2], FD *ph, char **argumentos, char *out)
             
             /**
              ***************************************************************
-             Cierre de todos los Pipes y terminacion del proceso raiz
+                 Cierre de todos los Pipes y terminacion del proceso raiz
              ***************************************************************
              **/
             
@@ -55,13 +79,15 @@ void padre(int rs[2], FD *ph, char **argumentos, char *out)
             
             if ( !strcmp(comandop, "find") ){
                 //Ejecute codigo de find
-                free(comandop);
             }
+
+
             
             
             if ( direccion == NULL || !strcmp(direccion,"/")) {
                 // Ejecutar Instruccion
-                comando(lectura,argumentos, out);
+                char lecturals[5] = "ls /\n";
+                comando(lecturals,argumentos, out);
                 write(rs[1],out, strlen(out)+1);
                 goto resul;
             }
@@ -71,24 +97,57 @@ void padre(int rs[2], FD *ph, char **argumentos, char *out)
                 aux_fd = aux_fd->sig;
                 if ( aux_fd == NULL ){
                     comando(lectura,argumentos, out);
+                    if ( !strcmp(comandop, "mkdir") ) {
+                        if ( strcmp(out, "0") ) {
+                            //No se creo el proceso
+                        }
+                        else {
+                            sprintf(out,"");
+                            FD *ph_aux = (FD *)malloc(sizeof(FD));
+                            pipe(ph_aux->pd);
+                            ph_aux->hijo = malloc(30);
+                            strcpy(ph_aux->hijo,direccion);
+                            ph_aux->sig = ph;
+                            ph = ph_aux;
+                            pid_t childpid;
+                            if ( (childpid = fork()) == 0 )  {
+                                crearHijo(father, ph, hp, &rs[0]);                   
+                            }
+                            else {
+                                ph->id = childpid;
+                                close(ph->pd[0]);
+                            }
+                            
+                        }
+                    }
+                    else if ( !strcmp(comandop, "rmdir") ){
+                        if ( strcmp(out, "0") ){
+                            //No se elimino el proceso
+                        }
+                        else {
+                            sprintf(out,"");
+                            // Manda señal de SIGKILL al hijo
+                        }
+                    }
+
                     write(rs[1],out, strlen(out)+1);
-                    free(comandop);
                     goto resul;
                 }
             }
             write(aux_fd->pd[1], lectura, strlen(lectura)+1);
-        resul:	read(rs[0], resultado,1000);
+resul:	    free(comandop);
+            read(rs[0], resultado,1000);
             printf("%s", resultado);
         }
     }
 }
 
 
-void hijo(int rs[2], FD *ph, FD *hp, int auxi , char ** argumentos, char *out)
-{
+void hijo(int rs[2], FD *ph, FD *hp, int auxi , 
+            char ** argumentos, char *out, int *father) {
     /**
      *****************************************
-     Comunicacion entre procesos
+            Comunicacion entre procesos
      *****************************************
      **/
     
@@ -144,8 +203,8 @@ void hijo(int rs[2], FD *ph, FD *hp, int auxi , char ** argumentos, char *out)
         else {
             /**
              *******************************************************************
-             Verificacion si el ultimo nombre de la ruta es un directorio
-             o un archivo
+                Verificacion si el ultimo nombre de la ruta es un directorio
+                                        o un archivo
              *******************************************************************
              **/
             
@@ -187,12 +246,13 @@ void hijo(int rs[2], FD *ph, FD *hp, int auxi , char ** argumentos, char *out)
 
 /**
  *****************************************
- Manejador de señales para los hijos.
+            Manejador de señales 
  *****************************************
  **/
 
-void childHandler () {
-    int childPid, childStatus;
-    childPid = wait(&childStatus);
-    printf("El hijo %d termino\n",childPid);
+
+
+void Handler () { 
+    return;
+
 }
