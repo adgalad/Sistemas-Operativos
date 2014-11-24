@@ -119,30 +119,7 @@ skip:
                 fm[0] = ph_aux;
                 if ( (childpid = fork()) == 0 )  {
                     ruta = aux;
-                        if ( father != -1 ) {
-                            father = 0;
-                            close(fm[1]->pd[0]);   // Cierro la tuberia del abuelo
-                            free(fm[1]);           // Libero la estructura copiada del abuelo
-                            close(*rs);       // Cierro la tuberia de lectura para resultado
-                        }
-                    
-                    father = 0;
-                    fm[1] = fm[0];
-                    close(fm[1]->pd[1]);
-                    fm[0] = fm[0]->sig;
-                    
-                    /**
-                    *********************************************************
-                        Limpieza de la estructura de hijos copiada del padre
-                    *********************************************************
-                    **/
-                    while( !(fm[0] == NULL) ){
-                        FD *aux_fd;
-                        aux_fd = fm[0];
-                        fm[0] = aux_fd->sig;
-                        free(aux_fd);
-                    }
-            
+                    crearHijo (&father, fm, &rs[0]);
                     goto directorio;
                     
                 }

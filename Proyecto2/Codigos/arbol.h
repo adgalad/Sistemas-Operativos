@@ -24,7 +24,7 @@ typedef struct fd_t {
 	struct fd_t* sig;
 }FD;
 
-FD **crearHijo (int *father, FD *fm[2], int *rs);
+FD ** crearHijo (int *father, FD *fm[2], int *rs);
 
 void arbolActivo ( int father, FD *fm[2], int rs[2], char **argumentos, char *out, int auxi );
 

@@ -77,6 +77,8 @@ const char *infoFile(char *name, char *output){
     
     strcpy(fecha,ctime(&s.st_mtime));
     fecha[strlen(fecha)-1] = ' ';
+    
+    
     if (S_ISLNK(modo))  tipo = 'l';
     else if (S_ISDIR(modo))  tipo = 'd';
     else if (S_ISBLK(modo))  tipo = 'b';
@@ -198,7 +200,7 @@ char *cp(int argc, char**argv,char *output){
     return "";
 }
 
-char *find(int argc, char **argv,char *output){
+char *find(int argc, char **argv,char *output, FD *fm[2]){
     char *c = malloc(100);
     sprintf(c, ".%s",argv[1]);
     
@@ -259,7 +261,6 @@ char *rmdir_(int argc, char **argv, char *output){
     DIR *dir = opendir(c);
     if ( dir == NULL) {
         sprintf(output, "-fssh: %s: No existe el directorio\n",argv[1]);
-        closedir(dir);
         free(c);
         return output;
     }
@@ -270,7 +271,6 @@ char *rmdir_(int argc, char **argv, char *output){
             sprintf(output, "-fssh: %s: El directorio no esta vacio\n",argv[1]);
             closedir(dir);
             free(c);
-            free(d);
             return output;
         }
     }
@@ -285,7 +285,7 @@ char *rmdir_(int argc, char **argv, char *output){
     return "";
 }
 
-char *comando(char *cmd, char **argv, char* output){
+char *comando(char *cmd, char **argv, char* output, FD *fm[2]){
     int argc=0;
     interprete(cmd, &argc, argv);
     strcpy(output, "");
@@ -322,6 +322,9 @@ char *comando(char *cmd, char **argv, char* output){
         else if(!strcmp(argv[0], "rmdir")) {
             rmdir_(argc, argv,output);
         }
+        else if(!strcmp(argv[0],"find")){
+            find(argc, argv, output, fm);
+        }
         else if(!strcmp(argv[0], "quit")) {
             exit(0);
         }
@@ -332,6 +335,5 @@ char *comando(char *cmd, char **argv, char* output){
     else {
         sprintf(output, "-fssh: %s: Es un directorio\n",argv[1]);
     }
-
     return output;
 }
