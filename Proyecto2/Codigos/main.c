@@ -20,7 +20,7 @@ int main (int argc, char** argv) {
     char *ruta = argv[1];
     pid_t childpid;
     FD *ph = NULL;
-    FD *hp = NULL;
+    FD *hp;
     int rs[2];
     int auxi = 0;
     char **argumentos = (char **) malloc (sizeof(char*)*6);
@@ -83,7 +83,6 @@ directorio:
          Buscamos en la tabla de inodos del directorio
      ****************************************************
      **/
-    
 skip:
     while (( direntp = readdir(dirp)) != NULL ) {
         if ('.' == direntp->d_name[0]) {
@@ -119,10 +118,32 @@ skip:
                 strcpy(ph_aux->hijo, direntp->d_name);
                 ph_aux->sig = ph;
                 ph = ph_aux;
-                
                 if ( (childpid = fork()) == 0 )  {
                     ruta = aux;
-                    crearHijo(&father, ph, hp, &rs[0]);                   
+                        if ( father != -1 ) {
+                            father = 0;
+                            close(hp->pd[0]);   // Cierro la tuberia del abuelo
+                            free(hp);           // Libero la estructura copiada del abuelo
+                            close(*rs);       // Cierro la tuberia de lectura para resultado
+                        }
+                    
+                    father = 0;
+                    hp = ph;
+                    close(hp->pd[1]);
+                    ph = ph->sig;
+                    
+                    /**
+                    *********************************************************
+                        Limpieza de la estructura de hijos copiada del padre
+                    *********************************************************
+                    **/
+                    while( !(ph == NULL) ){
+                        FD *aux_fd;
+                        aux_fd = ph;
+                        ph = aux_fd->sig;
+                        free(aux_fd);
+                    }
+            
                     goto directorio;
                     
                 }
@@ -145,6 +166,7 @@ skip:
      **/
     
     arbolActivo(father, ph, hp, rs, argumentos, out, auxi);
+
     exit(0);
 
  
