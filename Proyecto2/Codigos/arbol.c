@@ -177,8 +177,23 @@ void hijo(int rs[2], FD *ph, FD *hp, int auxi , char ** argumentos, char *out)
                     comando(instruccion,argumentos, out);
                     write(rs[1],out, strlen(out)+1);
                 }
-                free(comandop);
             }
+            else {
+                aux_fd = ph;
+                while ( 1 ) {
+                    if (!strcmp(aux_fd->hijo, direccion)) {
+                        write(aux_fd->pd[1], instruccion, strlen(instruccion)+1);
+                        break;
+                    }
+                    else if ( aux_fd == NULL ) {
+                        comando(instruccion,argumentos, out);
+                        write(rs[1],out, strlen(out)+1);
+                        break;
+                    }
+                    aux_fd = aux_fd->sig;
+                }
+            }
+            free(comandop);
         }
         free(tokken);
     }
