@@ -55,7 +55,7 @@ void arbolActivo ( int father, FD *fm[2], int rs[2], char **argumentos, char *ou
 void padre(int rs[2], FD *fm[2], char **argumentos, char *out, int* father) {
     char lectura[100];
     char tokken[100];
-    char resultado[1000];
+    char resultado[1000000];
     char *direccion;
     char *comandop;
     char *direccion1;
@@ -110,7 +110,7 @@ void padre(int rs[2], FD *fm[2], char **argumentos, char *out, int* father) {
                 & !strcmp(comandop,"ls") ){
                 // Ejecutar Instruccion
                 char lecturals[5] = "ls /\n";
-                comando(lecturals,argumentos, out);
+                comando(lecturals,argumentos, out, fm);
                 write(rs[1],out, strlen(out)+1);
                 goto resul;
             }
@@ -122,7 +122,7 @@ void padre(int rs[2], FD *fm[2], char **argumentos, char *out, int* father) {
                 aux_fd1 = aux_fd;
                 aux_fd = aux_fd->sig;
                 if ( aux_fd == NULL ){
-                    comando(lectura,argumentos, out);
+                    comando(lectura,argumentos, out, fm);
                     if ( !strcmp(comandop, "mkdir") ) {
                         if ( strcmp(out, "0") ) {
                             //No se creo el directorio
@@ -166,7 +166,7 @@ void padre(int rs[2], FD *fm[2], char **argumentos, char *out, int* father) {
             direccion1 = strtok(direccion, "/");
             direccion1 = strtok(NULL, "/");
             if ( !strcmp(comandop, "rmdir") & (direccion1 == NULL) ){
-                out = comando(lectura,argumentos, out);
+                out = comando(lectura,argumentos, out, fm);
                 if ( strcmp(out, "0") ){
                     //No se elimino el directorio
                     write(rs[1],out, strlen(out)+1);
@@ -186,7 +186,7 @@ void padre(int rs[2], FD *fm[2], char **argumentos, char *out, int* father) {
             }
             write(aux_fd->pd[1], lectura, strlen(lectura)+1);
 resul:	    free(comandop);
-            read(rs[0], resultado,1000);
+            read(rs[0], resultado,1000000);
             printf("%s", resultado);
         }
     }
@@ -248,7 +248,7 @@ void hijo(int rs[2], FD *fm[2], int auxi ,
         
         if ( aux1 == aux2 ) {
             // Ejecutar Instruccion
-            comando(instruccion,argumentos, out);
+            comando(instruccion,argumentos, out, fm);
             write(rs[1],out, strlen(out)+1);
         }
         else {
@@ -262,7 +262,7 @@ void hijo(int rs[2], FD *fm[2], int auxi ,
             if ( aux2 - aux1 == 1 ) {
                 if ( !strcmp(comandop, "ls") ) {
                     if (fm[0] == NULL) {
-                        comando(instruccion,argumentos, out);
+                        comando(instruccion,argumentos, out, fm);
                         write(rs[1],out, strlen(out)+1);
                     }
                     else {
@@ -270,7 +270,7 @@ void hijo(int rs[2], FD *fm[2], int auxi ,
                         while (1){
                             
                             if ( aux_fd == NULL ) {
-                                comando(instruccion,argumentos, out);
+                                comando(instruccion,argumentos, out, fm);
                                 write(rs[1],out, strlen(out)+1);
                                 break;
                             }
@@ -284,7 +284,7 @@ void hijo(int rs[2], FD *fm[2], int auxi ,
                     }
                 }
                 else if ( !strcmp(comandop, "mkdir") ) {
-                        comando(instruccion,argumentos, out);
+                        comando(instruccion,argumentos, out, fm);
                     if ( strcmp(out, "0") ) {
                         //No se creo el directorio
                     }
@@ -318,7 +318,7 @@ void hijo(int rs[2], FD *fm[2], int auxi ,
 
                 }
                 else if ( !strcmp(comandop,"rmdir") ) {
-                    comando(instruccion,argumentos, out);
+                    comando(instruccion,argumentos, out, fm);
                     if ( strcmp(out, "0") ){
                         //No se elimino el directorio
                     }
@@ -337,7 +337,7 @@ void hijo(int rs[2], FD *fm[2], int auxi ,
                     }
                 }
                 else {
-                    comando(instruccion,argumentos, out);
+                    comando(instruccion,argumentos, out, fm);
                     write(rs[1],out, strlen(out)+1);
                 }
             }
@@ -349,7 +349,7 @@ void hijo(int rs[2], FD *fm[2], int auxi ,
                         break;
                     }
                     else if ( aux_fd == NULL ) {
-                        comando(instruccion,argumentos, out);
+                        comando(instruccion,argumentos, out, fm);
                         write(rs[1],out, strlen(out)+1);
                         break;
                     }
@@ -373,6 +373,7 @@ void hijo(int rs[2], FD *fm[2], int auxi ,
 
 
 void Handler () { 
+    printf("murio\n");
     return;
 
 }

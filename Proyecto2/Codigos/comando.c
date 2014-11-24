@@ -198,7 +198,7 @@ char *cp(int argc, char**argv,char *output){
     return "";
 }
 
-char *find(int argc, char **argv,char *output){
+char *find(int argc, char **argv,char *output, FD *fm[2]){
     char *c = malloc(100);
     sprintf(c, ".%s",argv[1]);
     
@@ -285,7 +285,7 @@ char *rmdir_(int argc, char **argv, char *output){
     return "";
 }
 
-char *comando(char *cmd, char **argv, char* output){
+char *comando(char *cmd, char **argv, char* output, FD *fm[2]){
     int argc=0;
     interprete(cmd, &argc, argv);
     strcpy(output, "");

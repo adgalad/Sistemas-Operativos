@@ -13,6 +13,7 @@ int main (int argc, char** argv) {
     
     signal(SIGINT, Handler);
     signal(SIGQUIT, Handler);
+    signal(SIGPIPE, Handler);
     struct stat inodo;
     int father = -1;
     DIR *dirp;
