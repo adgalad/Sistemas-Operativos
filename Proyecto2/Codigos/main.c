@@ -11,21 +11,21 @@
 
 int main (int argc, char** argv) {
     
-    signal(SIGCHLD, childHandler);
+    signal(SIGINT, Handler);
+    signal(SIGQUIT, Handler);
     struct stat inodo;
     int father = -1;
     DIR *dirp;
     struct dirent *direntp;
     char *ruta = argv[1];
     pid_t childpid;
-    FD *ph = NULL;
-    FD *hp = NULL;
+    FD *fm[2];
     int rs[2];
     int auxi = 0;
     char **argumentos = (char **) malloc (sizeof(char*)*6);
     char *out = malloc(1024);
     chdir(argv[1]);
-    
+
     if (stat(ruta, &inodo) == -1 ) {
         fprintf(stderr, "No se pudo aplicar stat sobre el archivo %s: %s \n"
                 ,ruta, strerror(errno));
@@ -42,19 +42,19 @@ directorio:
     
     /**
      *************
-     Cable
+         Cable
      *************
      **/
     
     if ( father == 0 ) {
-        auxi = hp->pd[0];
+        auxi = fm[1]->pd[0];
     }
     
     
     /**
      ******************************************************
-     Imprimimos la Ruta actual y la modificamos para
-     que pueda ser interpretada como ruta absoluta
+        Imprimimos la Ruta actual y la modificamos para
+         que pueda ser interpretada como ruta absoluta
      ******************************************************
      **/
     
@@ -62,27 +62,34 @@ directorio:
         strcat(ruta,"/");
     }
     
-    if ( (dirp = opendir(ruta)) == NULL ) {
-        fprintf(stderr, "No se pudo abrir el directorio\n");
-        exit(1);
+    if ( ! strcmp(ruta, "../") ) {
+        strcpy(ruta,"./");
+        if ( (dirp = opendir(ruta) ) == NULL ){
+            fprintf(stderr, "No se pudo abrir el directorio\n");
+            exit(1);
+        }
+    }
+    else {
+       if ( (dirp = opendir(ruta)) == NULL ) {
+            fprintf(stderr, "No se pudo abrir el directorio\n");
+            exit(1);
+        }
     }
     
     
     /**
      ****************************************************
-     Buscamos en la tabla de inodos del directorio
+         Buscamos en la tabla de inodos del directorio
      ****************************************************
      **/
-    
 skip:
     while (( direntp = readdir(dirp)) != NULL ) {
         if ('.' == direntp->d_name[0]) {
             goto skip;
         }
-        
         /**
          ***********************************************************
-         Construccion de la ruta absoluta del subdirectorio
+             Construccion de la ruta absoluta del subdirectorio
          ***********************************************************
          **/
         
@@ -100,7 +107,7 @@ skip:
             if ( inodo.st_mode & S_IFDIR ) {
                 /**
                  ***********************************************************
-                 Estructura auxiliar para comunicacion con los hijos
+                     Estructura auxiliar para comunicacion con los hijos
                  ***********************************************************
                  **/
                 
@@ -108,41 +115,40 @@ skip:
                 pipe(ph_aux->pd);
                 ph_aux->hijo = malloc(30);
                 strcpy(ph_aux->hijo, direntp->d_name);
-                ph_aux->sig = ph;
-                ph = ph_aux;
-                
+                ph_aux->sig = fm[0];
+                fm[0] = ph_aux;
                 if ( (childpid = fork()) == 0 )  {
                     ruta = aux;
-                    
-                    if ( father != -1 ) {
-                        father = 0;
-                        close(hp->pd[0]);	// Cierro la tuberia del abuelo
-                        free(hp);			// Libero la estructura copiada del abuelo
-                        close(rs[0]);		// Cierro la tuberia de lectura para resultado
-                    }
+                        if ( father != -1 ) {
+                            father = 0;
+                            close(fm[1]->pd[0]);   // Cierro la tuberia del abuelo
+                            free(fm[1]);           // Libero la estructura copiada del abuelo
+                            close(*rs);       // Cierro la tuberia de lectura para resultado
+                        }
                     
                     father = 0;
-                    hp = ph;
-                    close(hp->pd[1]);
-                    ph = ph->sig;
+                    fm[1] = fm[0];
+                    close(fm[1]->pd[1]);
+                    fm[0] = fm[0]->sig;
                     
                     /**
-                     *********************************************************
-                     Limpieza de la estructura de hijos copiada del padre
-                     *********************************************************
-                     **/
-                    while( !(ph == NULL) ){
+                    *********************************************************
+                        Limpieza de la estructura de hijos copiada del padre
+                    *********************************************************
+                    **/
+                    while( !(fm[0] == NULL) ){
                         FD *aux_fd;
-                        aux_fd = ph;
-                        ph = aux_fd->sig;
+                        aux_fd = fm[0];
+                        fm[0] = aux_fd->sig;
                         free(aux_fd);
                     }
-                    
+            
                     goto directorio;
                     
                 }
                 else {
-                    close(ph->pd[0]);
+                    fm[0]->id = childpid;
+                    close(fm[0]->pd[0]);
                 }
             }
         }
@@ -154,26 +160,13 @@ skip:
     
     /**
      *****************************************
-     Entrada de Comandos
+                Entrada de Comandos
      *****************************************
      **/
     
-    
-    if ( father == -1 ){
-        padre(rs, ph, argumentos, out);
-    }
-    else {
-        hijo(rs, ph, hp, auxi, argumentos, out);
-    }
-    
-    FD *aux_fd;
-    aux_fd = ph;
-    while( !(aux_fd == NULL) ){
-        close(aux_fd->pd[1]);
-        aux_fd = aux_fd->sig;
-        free(ph);
-        ph = aux_fd;
-    }
+    arbolActivo(father, fm, rs, argumentos, out, auxi);
+
     exit(0);
-    
+
+ 
 }

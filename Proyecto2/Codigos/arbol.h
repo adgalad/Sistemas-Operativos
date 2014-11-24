@@ -19,14 +19,20 @@
 typedef struct fd_t {
 	int pd[2];
 	int rs[2];
+	int id;
 	char *hijo;
 	struct fd_t* sig;
 }FD;
 
-void padre(int rs[2], FD *ph, char **argumentos, char *out);
+FD **crearHijo (int *father, FD *fm[2], int *rs);
 
-void hijo(int rs[2], FD *ph, FD *hp, int auxi , char ** argumentos, char *out);
+void arbolActivo ( int father, FD *fm[2], int rs[2], char **argumentos, char *out, int auxi );
 
-void childHandler();
+void padre(int rs[2], FD *fm[2], char **argumentos, char *out, int *father);
+
+void hijo(int rs[2], FD *fm[2], int auxi , char ** argumentos, char *out, int *father);
+
+void Handler();
+
 
 #endif
