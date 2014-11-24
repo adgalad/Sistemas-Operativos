@@ -222,6 +222,7 @@ void hijo(int rs[2], FD *ph, FD *hp, int auxi ,
     while ( status != 0 ){
         int aux1, aux2;
         FD *aux_fd;
+        FD *aux_fd1;
         status = read(auxi, instruccion,100);
         char *tokken;
         char *direccion;
@@ -343,6 +344,25 @@ void hijo(int rs[2], FD *ph, FD *hp, int auxi ,
                     }
                     write(rs[1],out, strlen(out)+1);
 
+                }
+                else if ( !strcmp(comandop,"rmdir") ) {
+                    comando(instruccion,argumentos, out);
+                    if ( strcmp(out, "0") ){
+                        //No se elimino el directorio
+                    }
+                    else {
+                        sprintf(out,"");
+                        // Manda señal de SIGKILL al hijo
+                        aux_fd = ph;
+                        while ( !strcmp(aux_fd->hijo, direccion) ){
+                            aux_fd1 = aux_fd;
+                            aux_fd = aux_fd->sig;
+                        }
+                        kill(aux_fd->id, 9);
+                        aux_fd1->sig = aux_fd->sig;
+                        free(aux_fd);
+
+                    }
                 }
                 else {
                     comando(instruccion,argumentos, out);
