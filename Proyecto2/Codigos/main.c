@@ -19,8 +19,7 @@ int main (int argc, char** argv) {
     struct dirent *direntp;
     char *ruta = argv[1];
     pid_t childpid;
-    FD *ph = NULL;
-    FD *hp;
+    FD *fm[2];
     int rs[2];
     int auxi = 0;
     char **argumentos = (char **) malloc (sizeof(char*)*6);
@@ -48,7 +47,7 @@ directorio:
      **/
     
     if ( father == 0 ) {
-        auxi = hp->pd[0];
+        auxi = fm[1]->pd[0];
     }
     
     
@@ -116,40 +115,18 @@ skip:
                 pipe(ph_aux->pd);
                 ph_aux->hijo = malloc(30);
                 strcpy(ph_aux->hijo, direntp->d_name);
-                ph_aux->sig = ph;
-                ph = ph_aux;
+                ph_aux->sig = fm[0];
+                fm[0] = ph_aux;
                 if ( (childpid = fork()) == 0 )  {
                     ruta = aux;
-                        if ( father != -1 ) {
-                            father = 0;
-                            close(hp->pd[0]);   // Cierro la tuberia del abuelo
-                            free(hp);           // Libero la estructura copiada del abuelo
-                            close(*rs);       // Cierro la tuberia de lectura para resultado
-                        }
-                    
-                    father = 0;
-                    hp = ph;
-                    close(hp->pd[1]);
-                    ph = ph->sig;
-                    
-                    /**
-                    *********************************************************
-                        Limpieza de la estructura de hijos copiada del padre
-                    *********************************************************
-                    **/
-                    while( !(ph == NULL) ){
-                        FD *aux_fd;
-                        aux_fd = ph;
-                        ph = aux_fd->sig;
-                        free(aux_fd);
-                    }
+                    crearHijo (&father, fm, &rs[0]);
             
                     goto directorio;
                     
                 }
                 else {
-                    ph->id = childpid;
-                    close(ph->pd[0]);
+                    fm[0]->id = childpid;
+                    close(fm[0]->pd[0]);
                 }
             }
         }
@@ -165,7 +142,7 @@ skip:
      *****************************************
      **/
     
-    arbolActivo(father, ph, hp, rs, argumentos, out, auxi);
+    arbolActivo(father, fm, rs, argumentos, out, auxi);
 
     exit(0);
 

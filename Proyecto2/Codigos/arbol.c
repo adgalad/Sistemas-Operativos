@@ -2,47 +2,47 @@
 #include "arbol.h"
 
 
-void crearHijo (int *father, FD *ph, FD *hp, int *rs){
+FD **crearHijo (int *father, FD *fm[2], int *rs){
     if ( *father != -1 ) {
         *father = 0;
-        close(hp->pd[0]);   // Cierro la tuberia del abuelo
-        free(hp);           // Libero la estructura copiada del abuelo
+        close(fm[1]->pd[0]);   // Cierro la tuberia del abuelo
+        free(fm[1]);           // Libero la estructura copiada del abuelo
         close(*rs);       // Cierro la tuberia de lectura para resultado
     }
                     
     *father = 0;
-    hp = ph;
-    close(hp->pd[1]);
-    ph = ph->sig;
+    fm[1] = fm[0];
+    close(fm[1]->pd[1]);
+    fm[0] = fm[0]->sig;
                     
     /**
     *********************************************************
         Limpieza de la estructura de hijos copiada del padre
     *********************************************************
     **/
-    while( !(ph == NULL) ){
+    while( !(fm[0] == NULL) ){
         FD *aux_fd;
-        aux_fd = ph;
-        ph = aux_fd->sig;
+        aux_fd = fm[0];
+        fm[0] = aux_fd->sig;
         free(aux_fd);
     }
-
+    return fm;
 }
 
-void arbolActivo ( int father, FD *ph, FD *hp, int rs[2], char **argumentos, char *out, int auxi ) {
+void arbolActivo ( int father, FD *fm[2], int rs[2], char **argumentos, char *out, int auxi ) {
     if ( father == -1 ){
-        padre(rs, ph, hp, argumentos, out, &father);
+        padre(rs, fm, argumentos, out, &father);
     }
     else {
-        hijo(rs, ph, hp, auxi, argumentos, out, &father);
+        hijo(rs, fm, auxi, argumentos, out, &father);
         close(rs[1]);
         FD *aux_fd;
-        aux_fd = ph;
+        aux_fd = fm[0];
         while( !(aux_fd == NULL) ){
             close(aux_fd->pd[1]);
             aux_fd = aux_fd->sig;
-            free(ph);
-            ph = aux_fd;
+            free(fm[0]);
+            fm[0] = aux_fd;
         }
     }
     
@@ -52,7 +52,7 @@ void arbolActivo ( int father, FD *ph, FD *hp, int rs[2], char **argumentos, cha
 
 
 
-void padre(int rs[2], FD *ph, FD *hp, char **argumentos, char *out, int* father) {
+void padre(int rs[2], FD *fm[2], char **argumentos, char *out, int* father) {
     char lectura[100];
     char tokken[100];
     char resultado[1000];
@@ -86,14 +86,14 @@ void padre(int rs[2], FD *ph, FD *hp, char **argumentos, char *out, int* father)
              **/
             
             if ( !strcmp(comandop, "quit") ){
-                aux_fd = ph;
+                aux_fd = fm[0];
                 close(rs[0]);
                 close(rs[1]);
                 while ( aux_fd != NULL ) {
-                    ph = aux_fd->sig;
+                    fm[0] = aux_fd->sig;
                     close(aux_fd->pd[1]);
                     free(aux_fd);
-                    aux_fd = ph;
+                    aux_fd = fm[0];
                 }
                 free(comandop);
                 exit(0);
@@ -117,7 +117,7 @@ void padre(int rs[2], FD *ph, FD *hp, char **argumentos, char *out, int* father)
 
 
             
-            aux_fd = ph;
+            aux_fd = fm[0];
             while ( strcmp(aux_fd->hijo, direccion) ){
                 aux_fd1 = aux_fd;
                 aux_fd = aux_fd->sig;
@@ -134,38 +134,16 @@ void padre(int rs[2], FD *ph, FD *hp, char **argumentos, char *out, int* father)
                             pipe(ph_aux->pd);
                             ph_aux->hijo = malloc(30);
                             strcpy(ph_aux->hijo,direccion);
-                            ph_aux->sig = ph;
-                            ph = ph_aux;
+                            ph_aux->sig = fm[0];
+                            fm[0] = ph_aux;
                             pid_t childpid;
                             if ( (childpid = fork()) == 0 )  {
-                                if ( *father != -1 ) {
-                                    *father = 0;
-                                    close(hp->pd[0]);   // Cierro la tuberia del abuelo
-                                    free(hp);           // Libero la estructura copiada del abuelo
-                                    close(*rs);       // Cierro la tuberia de lectura para resultado
-                                }
-                            
-                                *father = 0;
-                                hp = ph;
-                                close(hp->pd[1]);
-                                ph = ph->sig;
-                                
-                                /**
-                                *********************************************************
-                                    Limpieza de la estructura de hijos copiada del padre
-                                *********************************************************
-                                **/
-                                while( !(ph == NULL) ){
-                                    FD *aux_fd;
-                                    aux_fd = ph;
-                                    ph = aux_fd->sig;
-                                    free(aux_fd);
-                                }
-                                arbolActivo(*father, ph, hp, rs, argumentos, out, hp->pd[0]);                 
+                                crearHijo (father, fm, &rs[0]);
+                                arbolActivo(*father, fm, rs, argumentos, out, fm[1]->pd[0]);                 
                             }
                             else {
-                                ph->id = childpid;
-                                close(ph->pd[0]);
+                                fm[0]->id = childpid;
+                                close(fm[0]->pd[0]);
 
                             }
 
@@ -206,7 +184,7 @@ resul:	    free(comandop);
 }
 
 
-void hijo(int rs[2], FD *ph, FD *hp, int auxi , 
+void hijo(int rs[2], FD *fm[2], int auxi , 
             char ** argumentos, char *out, int *father) {
     /**
      *****************************************
@@ -241,7 +219,7 @@ void hijo(int rs[2], FD *ph, FD *hp, int auxi ,
         direccion = strtok(direccion, "/");
         
         aux1 = 0;
-        while ( strcmp(direccion, hp->hijo) ) {
+        while ( strcmp(direccion, fm[1]->hijo) ) {
             direccion = strtok(NULL, "/");
             aux1++;
         }
@@ -274,12 +252,12 @@ void hijo(int rs[2], FD *ph, FD *hp, int auxi ,
             
             if ( aux2 - aux1 == 1 ) {
                 if ( !strcmp(comandop, "ls") ) {
-                    if (ph == NULL) {
+                    if (fm[0] == NULL) {
                         comando(instruccion,argumentos, out);
                         write(rs[1],out, strlen(out)+1);
                     }
                     else {
-                        aux_fd = ph;
+                        aux_fd = fm[0];
                         while (1){
                             
                             if ( aux_fd == NULL ) {
@@ -307,38 +285,16 @@ void hijo(int rs[2], FD *ph, FD *hp, int auxi ,
                         pipe(ph_aux->pd);
                         ph_aux->hijo = malloc(30);
                         strcpy(ph_aux->hijo,direccion);
-                        ph_aux->sig = ph;
-                        ph = ph_aux;
+                        ph_aux->sig = fm[0];
+                        fm[0] = ph_aux;
                         pid_t childpid;
                         if ( (childpid = fork()) == 0 )  {
-                            if ( *father != -1 ) {
-                                    *father = 0;
-                                    close(hp->pd[0]);   // Cierro la tuberia del abuelo
-                                    free(hp);           // Libero la estructura copiada del abuelo
-                                    close(*rs);       // Cierro la tuberia de lectura para resultado
-                                }
-                            
-                            *father = 0;
-                            hp = ph;
-                            close(hp->pd[1]);
-                            ph = ph->sig;
-                            
-                            /**
-                            *********************************************************
-                                Limpieza de la estructura de hijos copiada del padre
-                            *********************************************************
-                            **/
-                            while( !(ph == NULL) ){
-                                FD *aux_fd;
-                                aux_fd = ph;
-                                ph = aux_fd->sig;
-                                free(aux_fd);
-                            }
-                            arbolActivo(*father, ph, hp, rs, argumentos, out, hp->pd[0]);                 
+                            crearHijo (father, fm, &rs[0]);
+                            arbolActivo(*father, fm, rs, argumentos, out, fm[1]->pd[0]);                 
                         }
                         else {
-                            ph->id = childpid;
-                            close(ph->pd[0]);
+                            fm[0]->id = childpid;
+                            close(fm[0]->pd[0]);
                         }
 
                     }
@@ -353,7 +309,7 @@ void hijo(int rs[2], FD *ph, FD *hp, int auxi ,
                     else {
                         sprintf(out,"");
                         // Manda señal de SIGKILL al hijo
-                        aux_fd = ph;
+                        aux_fd = fm[0];
                         while ( !strcmp(aux_fd->hijo, direccion) ){
                             aux_fd1 = aux_fd;
                             aux_fd = aux_fd->sig;
@@ -370,7 +326,7 @@ void hijo(int rs[2], FD *ph, FD *hp, int auxi ,
                 }
             }
             else {
-                aux_fd = ph;
+                aux_fd = fm[0];
                 while ( 1 ) {
                     if (!strcmp(aux_fd->hijo, direccion)) {
                         write(aux_fd->pd[1], instruccion, strlen(instruccion)+1);
