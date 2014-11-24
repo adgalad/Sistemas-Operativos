@@ -270,7 +270,7 @@ char *rmdir_(int argc, char **argv, char *output){
             sprintf(output, "-fssh: %s: El directorio no esta vacio\n",argv[1]);
             closedir(dir);
             free(c);
-            free(d);
+            //free(d);
             return output;
         }
     }
@@ -320,7 +320,7 @@ char *comando(char *cmd, char **argv, char* output){
             mkdir_(argc, argv,output);
         }
         else if(!strcmp(argv[0], "rmdir")) {
-            rmdir_(argc, argv,output);
+            output = rmdir_(argc, argv,output);
         }
         else if(!strcmp(argv[0], "quit")) {
             exit(0);

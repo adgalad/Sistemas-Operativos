@@ -158,9 +158,10 @@ void padre(int rs[2], FD *fm[2], char **argumentos, char *out, int* father) {
             direccion1 = strtok(direccion, "/");
             direccion1 = strtok(NULL, "/");
             if ( !strcmp(comandop, "rmdir") & (direccion1 == NULL) ){
-                comando(lectura,argumentos, out);
+                out = comando(lectura,argumentos, out);
                 if ( strcmp(out, "0") ){
                     //No se elimino el directorio
+                    write(rs[1],out, strlen(out)+1);
                     goto resul;
 
                 }
