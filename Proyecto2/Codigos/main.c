@@ -26,6 +26,10 @@ int main (int argc, char** argv) {
     char *out = malloc(1024);
     chdir(argv[1]);
 
+    fm[1] = ( FD* ) malloc(sizeof(FD));
+    fm[1]->path = ( char *) malloc(1);
+    fm[1]->path = "/";
+
     if (stat(ruta, &inodo) == -1 ) {
         fprintf(stderr, "No se pudo aplicar stat sobre el archivo %s: %s \n"
                 ,ruta, strerror(errno));
@@ -119,7 +123,15 @@ skip:
                 fm[0] = ph_aux;
                 if ( (childpid = fork()) == 0 )  {
                     ruta = aux;
+                    char *concatenar;
+                    concatenar = (char *)malloc(strlen(fm[0]->hijo)+
+                        strlen(fm[1]->path)+3);
+
+                    strcpy(concatenar, fm[1]->path);
+                    strcat(concatenar,fm[0]->hijo);
+                    strcat(concatenar,"/");
                     crearHijo (&father, fm, &rs[0]);
+                    fm[1]->path = concatenar; 
             
                     goto directorio;
                     

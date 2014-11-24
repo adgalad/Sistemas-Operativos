@@ -138,7 +138,15 @@ void padre(int rs[2], FD *fm[2], char **argumentos, char *out, int* father) {
                             fm[0] = ph_aux;
                             pid_t childpid;
                             if ( (childpid = fork()) == 0 )  {
+                                char *concatenar;
+                                concatenar = (char *)malloc(strlen(fm[0]->hijo)+
+                                strlen(fm[1]->path)+3);
+
+                                strcpy(concatenar, fm[1]->path);
+                                strcat(concatenar,fm[0]->hijo);
+                                strcat(concatenar,"/");
                                 crearHijo (father, fm, &rs[0]);
+                                fm[1]->path = concatenar;
                                 arbolActivo(*father, fm, rs, argumentos, out, fm[1]->pd[0]);                 
                             }
                             else {
@@ -290,7 +298,14 @@ void hijo(int rs[2], FD *fm[2], int auxi ,
                         fm[0] = ph_aux;
                         pid_t childpid;
                         if ( (childpid = fork()) == 0 )  {
+                            char *concatenar;
+                            concatenar = (char *)malloc(strlen(fm[0]->hijo)+
+                                strlen(fm[1]->path)+3);
+                            strcpy(concatenar, fm[1]->path);
+                            strcat(concatenar,fm[0]->hijo);
+                            strcat(concatenar,"/");
                             crearHijo (father, fm, &rs[0]);
+                            fm[1]->path = concatenar;
                             arbolActivo(*father, fm, rs, argumentos, out, fm[1]->pd[0]);                 
                         }
                         else {
