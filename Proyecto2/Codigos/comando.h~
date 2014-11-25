@@ -34,7 +34,7 @@ char **splitStr(char *str, char tok, int *n, char **resultado);
 char **interprete(char *comando, int *n, char **res);
 
 
-char *comando(char *cmd, char **argv, char *output, int rs[2], FD *ph, FD *hp);
+char *comando(char *cmd, char **argv, char *output, int rs, FD *ph, FD *hp);
 
 
 const char *infoFile(char *name,char *output);
@@ -55,7 +55,7 @@ char *touch(int argc, char **argv, char *contenido, char *output);
 char *mv(int argc, char **argv, char *output);
 
 
-char *find(int argc, char **argv,char *output, int rs[2], FD *ph, FD *hp);
+char *find(int argc, char **argv,char *output, int rs, FD *ph, FD *hp);
 
 
 char *rm(int argc,char **argv,char *output);

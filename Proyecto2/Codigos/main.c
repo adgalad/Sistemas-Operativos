@@ -11,29 +11,25 @@
 
 int main (int argc, char** argv) {
     
-    //signal(SIGINT, Handler);
-    signal(SIGQUIT, Handler);
-    signal(SIGPIPE, Handler);
-    signal(SIGUSR1, contador);
-    signal(SIGUSR2, restador);
+    signal(SIGCHLD, childHandler);
     struct stat inodo;
     int father = -1;
     DIR *dirp;
     struct dirent *direntp;
     char *ruta = argv[1];
     pid_t childpid;
-    FD *fm[2];
+    FD *ph = NULL;
+    FD *hp = NULL;
     int rs[2];
     int auxi = 0;
     char **argumentos = (char **) malloc (sizeof(char*)*6);
     char *out = malloc(1024);
     chdir(argv[1]);
-    int root = getpid();
-
-    fm[1] = ( FD* ) malloc(sizeof(FD));
-    fm[1]->path = ( char *) malloc(1);
-    fm[1]->path = "/";
-
+    
+    hp = (FD*) malloc(sizeof(FD));
+    hp->path = malloc(2);
+    strcpy(hp->path, "/");
+    
     if (stat(ruta, &inodo) == -1 ) {
         fprintf(stderr, "No se pudo aplicar stat sobre el archivo %s: %s \n"
                 ,ruta, strerror(errno));
@@ -50,19 +46,19 @@ directorio:
     
     /**
      *************
-         Cable
+     Cable
      *************
      **/
     
     if ( father == 0 ) {
-        auxi = fm[1]->pd[0];
+        auxi = hp->pd[0];
     }
     
     
     /**
      ******************************************************
-        Imprimimos la Ruta actual y la modificamos para
-         que pueda ser interpretada como ruta absoluta
+     Imprimimos la Ruta actual y la modificamos para
+     que pueda ser interpretada como ruta absoluta
      ******************************************************
      **/
     
@@ -70,34 +66,27 @@ directorio:
         strcat(ruta,"/");
     }
     
-    if ( ! strcmp(ruta, "../") ) {
-        strcpy(ruta,"./");
-        if ( (dirp = opendir(ruta) ) == NULL ){
-            fprintf(stderr, "No se pudo abrir el directorio\n");
-            exit(1);
-        }
-    }
-    else {
-       if ( (dirp = opendir(ruta)) == NULL ) {
-            fprintf(stderr, "No se pudo abrir el directorio\n");
-            exit(1);
-        }
+    if ( (dirp = opendir(ruta)) == NULL ) {
+        fprintf(stderr, "No se pudo abrir el directorio\n");
+        exit(1);
     }
     
     
     /**
      ****************************************************
-         Buscamos en la tabla de inodos del directorio
+     Buscamos en la tabla de inodos del directorio
      ****************************************************
      **/
+    
 skip:
     while (( direntp = readdir(dirp)) != NULL ) {
         if ('.' == direntp->d_name[0]) {
             goto skip;
         }
+        
         /**
          ***********************************************************
-             Construccion de la ruta absoluta del subdirectorio
+         Construccion de la ruta absoluta del subdirectorio
          ***********************************************************
          **/
         
@@ -115,7 +104,7 @@ skip:
             if ( inodo.st_mode & S_IFDIR ) {
                 /**
                  ***********************************************************
-                     Estructura auxiliar para comunicacion con los hijos
+                 Estructura auxiliar para comunicacion con los hijos
                  ***********************************************************
                  **/
                 
@@ -123,26 +112,45 @@ skip:
                 pipe(ph_aux->pd);
                 ph_aux->hijo = malloc(30);
                 strcpy(ph_aux->hijo, direntp->d_name);
-                ph_aux->sig = fm[0];
-                fm[0] = ph_aux;
+                ph_aux->sig = ph;
+                ph = ph_aux;
+                
                 if ( (childpid = fork()) == 0 )  {
                     ruta = aux;
-                    char *concatenar;
-                    concatenar = (char *)malloc(strlen(fm[0]->hijo)+
-                        strlen(fm[1]->path)+3);
-
-                    strcpy(concatenar, fm[1]->path);
-                    strcat(concatenar,fm[0]->hijo);
-                    strcat(concatenar,"/");
-                    crearHijo (&father, fm, &rs[0], root);
-                    fm[1]->path = concatenar; 
-                    kill(root, 30);
+                    char *concat = malloc(strlen(ph->hijo)+strlen(hp->path)+3);
+                    strcpy(concat, hp->path);
+                    strcat(concat, ph->hijo);
+                    strcat(concat, "/");
+                    
+                    if ( father != -1 ) {
+                        father = 0;
+                        close(hp->pd[0]);	// Cierro la tuberia del abuelo
+                        free(hp);			// Libero la estructura copiada del abuelo
+                        close(rs[0]);		// Cierro la tuberia de lectura para resultado
+                    }
+                    
+                    father = 0;
+                    hp = ph;
+                    close(hp->pd[1]);
+                    ph = ph->sig;
+                    
+                    /**
+                     *********************************************************
+                     Limpieza de la estructura de hijos copiada del padre
+                     *********************************************************
+                     **/
+                    while( !(ph == NULL) ){
+                        FD *aux_fd;
+                        aux_fd = ph;
+                        ph = aux_fd->sig;
+                        free(aux_fd);
+                    }
+                    hp->path = concat;
                     goto directorio;
                     
                 }
                 else {
-                    fm[0]->id = childpid;
-                    close(fm[0]->pd[0]);
+                    close(ph->pd[0]);
                 }
             }
         }
@@ -154,13 +162,26 @@ skip:
     
     /**
      *****************************************
-                Entrada de Comandos
+     Entrada de Comandos
      *****************************************
      **/
     
-    arbolActivo(father, fm, rs, argumentos, out, auxi, root);
-
+    
+    if ( father == -1 ){
+        padre(rs, ph, hp, auxi, argumentos, out, father);
+    }
+    else {
+        hijo(rs, ph, hp, auxi, argumentos, out, father);
+    }
+    
+    FD *aux_fd;
+    aux_fd = ph;
+    while( !(aux_fd == NULL) ){
+        close(aux_fd->pd[1]);
+        aux_fd = aux_fd->sig;
+        free(ph);
+        ph = aux_fd;
+    }
     exit(0);
-
- 
+    
 }

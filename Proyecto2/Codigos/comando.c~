@@ -294,7 +294,7 @@ char *mkdir_(int argc, char **argv, char *output){
     }
     mkdir(c, 0755);
     free(c);
-    return "";
+    return "0";
 }
 
 char *rmdir_(int argc, char **argv, char *output){
