@@ -106,14 +106,15 @@ void padre(int rs[2], FD *fm[2], char **argumentos, char *out, int* father) {
 
             
             
-            if ( ( direccion == NULL || !strcmp(direccion,"/") ) 
-                & !strcmp(comandop,"ls") ){
+            if ( direccion == NULL || !strcmp(direccion,"/") ){
                 // Ejecutar Instruccion
-                char lecturals[5] = "ls /\n";
-                comando(lecturals,argumentos, out, fm);
+                strcpy(lectura,comandop);
+                strcat(lectura, " /\n");
+                comando(lectura,argumentos, out, fm);
                 write(rs[1],out, strlen(out)+1);
                 goto resul;
             }
+
 
 
             
