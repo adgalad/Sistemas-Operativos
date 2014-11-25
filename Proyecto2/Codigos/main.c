@@ -11,9 +11,11 @@
 
 int main (int argc, char** argv) {
     
-    signal(SIGINT, Handler);
+    //signal(SIGINT, Handler);
     signal(SIGQUIT, Handler);
     signal(SIGPIPE, Handler);
+    signal(SIGUSR1, contador);
+    signal(SIGUSR2, restador);
     struct stat inodo;
     int father = -1;
     DIR *dirp;
@@ -26,6 +28,7 @@ int main (int argc, char** argv) {
     char **argumentos = (char **) malloc (sizeof(char*)*6);
     char *out = malloc(1024);
     chdir(argv[1]);
+    int root = getpid();
 
     fm[1] = ( FD* ) malloc(sizeof(FD));
     fm[1]->path = ( char *) malloc(1);
@@ -131,9 +134,9 @@ skip:
                     strcpy(concatenar, fm[1]->path);
                     strcat(concatenar,fm[0]->hijo);
                     strcat(concatenar,"/");
-                    crearHijo (&father, fm, &rs[0]);
+                    crearHijo (&father, fm, &rs[0], root);
                     fm[1]->path = concatenar; 
-            
+                    kill(root, 30);
                     goto directorio;
                     
                 }
@@ -155,7 +158,7 @@ skip:
      *****************************************
      **/
     
-    arbolActivo(father, fm, rs, argumentos, out, auxi);
+    arbolActivo(father, fm, rs, argumentos, out, auxi, root);
 
     exit(0);
 

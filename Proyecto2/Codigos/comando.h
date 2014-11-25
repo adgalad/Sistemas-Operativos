@@ -30,7 +30,7 @@ char **splitStr(char *str, char tok, int *n, char **resultado);
 char **interprete(char *comando, int *n, char **res);
 
 
-char *comando(char *cmd, char **argv, char *output, FD *fm[2]);
+char *comando(char *cmd, char **argv, char *output, FD *fm[2], int rs[2]);
 
 
 const char *infoFile(char *name,char *output);
@@ -45,7 +45,7 @@ char *cat(int argc, char **argv);
 char *cp(int argc, char**argv,char *output);
 
 
-char *find(int argc, char **argv,char *output, FD *fm[2]);
+char *find(int argc, char **argv,char *output, FD *fm[2], int rs[2]);
 
 
 char *rm(int argc,char **argv,char *output);

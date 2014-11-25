@@ -25,15 +25,19 @@ typedef struct fd_t {
 	char *path;
 }FD;
 
-FD ** crearHijo (int *father, FD *fm[2], int *rs);
+FD ** crearHijo (int *father, FD *fm[2], int *rs, int root);
 
-void arbolActivo ( int father, FD *fm[2], int rs[2], char **argumentos, char *out, int auxi );
+void arbolActivo ( int father, FD *fm[2], int rs[2], char **argumentos, char *out, int auxi, int root );
 
-void padre(int rs[2], FD *fm[2], char **argumentos, char *out, int *father);
+void padre(int rs[2], FD *fm[2], char **argumentos, char *out, int *father, int root);
 
-void hijo(int rs[2], FD *fm[2], int auxi , char ** argumentos, char *out, int *father);
+void hijo(int rs[2], FD *fm[2], int auxi , char ** argumentos, char *out, int *father, int root);
 
 void Handler();
+
+void contador();
+
+void restador();
 
 
 #endif
