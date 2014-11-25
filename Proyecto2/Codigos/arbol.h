@@ -16,24 +16,19 @@
 #include "comando.h"
 
 
-typedef struct fd_t {
-	int pd[2];
-	int rs[2];
-	int id;
-	char *hijo;
-	struct fd_t* sig;
-	char *path;
-}FD;
+FD **crearHijo (int *father, FD *fm[2], int *rs, int root);
 
-FD ** crearHijo (int *father, FD *fm[2], int *rs);
+void arbolActivo ( int father, FD *fm[2], int rs[2], char **argumentos, char *out, int auxi, int root );
 
-void arbolActivo ( int father, FD *fm[2], int rs[2], char **argumentos, char *out, int auxi );
+void padre(int rs[2], FD *fm[2], char **argumentos, char *out, int *father, int root);
 
-void padre(int rs[2], FD *fm[2], char **argumentos, char *out, int *father);
-
-void hijo(int rs[2], FD *fm[2], int auxi , char ** argumentos, char *out, int *father);
+void hijo(int rs[2], FD *fm[2], int auxi , char ** argumentos, char *out, int *father, int root);
 
 void Handler();
+
+void contador();
+
+void restador();
 
 
 #endif

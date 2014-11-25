@@ -23,11 +23,11 @@ char** splitStr(char *str, char tok, int *n, char **resultado){
         resultado[1] = malloc(1);
         strcpy(resultado[1], "/");
     }
-    else if (!strcmp(resultado[1], "\0")){
+    else if (!strcmp(resultado[1], "\0") && strcmp(resultado[0],"find")){
         strcpy(resultado[1],"/");
     }
-    else if (resultado[1]!=NULL && resultado[1][0]!='/') {
-        char *aux = malloc(strlen(resultado[1])+1);
+    else if (resultado[1]!=NULL && resultado[1][0]!='/' && strcmp(resultado[0],"find")) {
+        char *aux = malloc(strlen(resultado[1])+2);
         sprintf(aux, "/%s",resultado[1]);
         resultado[1] = aux;
     }
@@ -200,26 +200,42 @@ char *cp(int argc, char**argv,char *output){
     return "";
 }
 
-char *find(int argc, char **argv,char *output, FD *fm[2]){
-/*    char *c = malloc(100);
-    sprintf(c, ".%s", fm[1]->hijo);
-    char *out = malloc(1);
-    char *a,b;
-    DIR *dir;
-    opendir(dir);
-    if (dir!=NULL) {
-        struct dirent *d = readdir(dir);
-        while (d != NULL) {
-            aux = malloc(strlen(c)+d->d_name+1);
-            strcpy(aux, c);
-            strcat(aux, d);
-            if (strlen(strstr(aux, argv[1])) > 0) {
-                
+char *find(int argc, char **argv,char *output, FD *fm[2], int rs[2]){
+    char *c = malloc(100);
+    char *buffer = malloc(100);
+    sprintf(c, ".%s",fm[1]->path);
+    DIR *dir = opendir(c);
+    if (dir != NULL) {
+        struct dirent *d;
+        strcpy(output,"");
+        while ((d=readdir(dir)) != NULL) {
+            if (d->d_name[0] != '.') {
+
+                buffer = ( char* )malloc(strlen(c)+strlen(d->d_name)+1);
+                strcpy(buffer,c);
+                strcat(buffer,d->d_name);
+
+                char *f = strstr(buffer,argv[1]);
+                if ( f != NULL ){
+                    sprintf(buffer, "%s%s",fm[1]->path,d->d_name);
+                    strcat(output, buffer);
+                    strcat(output, "\n");
+                }
             }
             
         }
+        FD *aux_fd = fm[0];
+        sprintf(buffer,"find %s",argv[1]);
+        while ( aux_fd != NULL ) {
+            write(aux_fd->pd[1], buffer, strlen(buffer)+1);
+            aux_fd = aux_fd->sig;
+        }
+        
+        write(rs[1],output,strlen(output)+1);
+        closedir(dir);
+        free(c);
+        return output;
     }
-    return "";*/
     return "";
 }
 
@@ -287,7 +303,7 @@ char *rmdir_(int argc, char **argv, char *output){
     return "";
 }
 
-char *comando(char *cmd, char **argv, char* output, FD *fm[2]){
+char *comando(char *cmd, char **argv, char* output, FD *fm[2],int rs[2]){
     int argc=0;
     interprete(cmd, &argc, argv);
     strcpy(output, "");
@@ -313,7 +329,7 @@ char *comando(char *cmd, char **argv, char* output, FD *fm[2]){
             
         }
         else if(!strcmp(argv[0], "find")) {
-            
+            find(argc, argv, output, fm,rs);
         }
         else if(!strcmp(argv[0], "rm")) {
             rm(argc, argv,output);
@@ -325,7 +341,7 @@ char *comando(char *cmd, char **argv, char* output, FD *fm[2]){
             output = rmdir_(argc, argv,output);
         }
         else if(!strcmp(argv[0],"find")){
-            find(argc, argv, output, fm);
+            find(argc, argv, output, fm, rs);
         }
         else if(!strcmp(argv[0], "quit")) {
             exit(0);
