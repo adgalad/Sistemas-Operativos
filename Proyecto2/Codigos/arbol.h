@@ -22,6 +22,7 @@ typedef struct fd_t {
 	int id;
 	char *hijo;
 	struct fd_t* sig;
+	char *path;
 }FD;
 
 FD ** crearHijo (int *father, FD *fm[2], int *rs);

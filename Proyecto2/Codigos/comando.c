@@ -201,23 +201,25 @@ char *cp(int argc, char**argv,char *output){
 }
 
 char *find(int argc, char **argv,char *output, FD *fm[2]){
-    char *c = malloc(100);
-    sprintf(c, ".%s",argv[1]);
-    
-    DIR *dir = opendir(c);
-    if (dir != NULL) {
-        struct dirent *d;
-        strcpy(output,"");
-        while ((d=readdir(dir)) != NULL) {
-            if (d->d_name[0] != '.') {
-                strcat(output, strstr(d->d_name, argv[2]));
-                strcat(output, "\n");
+/*    char *c = malloc(100);
+    sprintf(c, ".%s", fm[1]->hijo);
+    char *out = malloc(1);
+    char *a,b;
+    DIR *dir;
+    opendir(dir);
+    if (dir!=NULL) {
+        struct dirent *d = readdir(dir);
+        while (d != NULL) {
+            aux = malloc(strlen(c)+d->d_name+1);
+            strcpy(aux, c);
+            strcat(aux, d);
+            if (strlen(strstr(aux, argv[1])) > 0) {
+                
             }
+            
         }
-        free(c);
-        return output;
     }
-    free(c);
+    return "";*/
     return "";
 }
 
@@ -320,7 +322,7 @@ char *comando(char *cmd, char **argv, char* output, FD *fm[2]){
             mkdir_(argc, argv,output);
         }
         else if(!strcmp(argv[0], "rmdir")) {
-            rmdir_(argc, argv,output);
+            output = rmdir_(argc, argv,output);
         }
         else if(!strcmp(argv[0],"find")){
             find(argc, argv, output, fm);
