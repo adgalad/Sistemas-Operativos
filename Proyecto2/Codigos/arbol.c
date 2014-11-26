@@ -10,18 +10,20 @@ void padre(int rs[2], FD *ph, FD *hp, int auxi, char **argumentos, char *out, in
 {
     char lectura[100];
     char tokken[100];
-    char resultado[1000];
+    char resultado[10000];
     char *direccion;
+    char *direccion1;
     char *comandop;
     while(1)
     {
-        printf("fssh$ ");
+prompt: printf("fssh$ ");
         fgets(lectura,100, stdin);
         if ( !strcmp(lectura, "\n") ) {
             printf("\n");
         }
         else {
             FD *aux_fd;
+            FD *aux_fd1;
             
             if ( lectura[strlen(lectura)-1] == '\n' ){
                 lectura[strlen(lectura)-1] = '\0';
@@ -42,12 +44,13 @@ void padre(int rs[2], FD *ph, FD *hp, int auxi, char **argumentos, char *out, in
             
             if ( !strcmp(comandop, "quit") ){
                 aux_fd = ph;
+                /*
                 while ( aux_fd != NULL ) {
                     ph = aux_fd->sig;
                     close(aux_fd->pd[1]);
                     free(aux_fd);
                     aux_fd = ph;
-                }
+                }*/
                 exit(0);
             }
             
@@ -78,8 +81,8 @@ void padre(int rs[2], FD *ph, FD *hp, int auxi, char **argumentos, char *out, in
                             strcpy(ph_aux->hijo, direccion);
                             ph_aux->sig = ph;
                             ph = ph_aux;
-                            printf("hola1\n");
-                            if((ph->id = fork()) == 0) {
+                            int childpid;
+                            if((childpid = fork()) == 0) {
                                 char *concat = malloc(strlen(ph->hijo)+strlen(hp->path)+3);
                                 strcpy(concat, hp->path);
                                 strcat(concat, ph->hijo);
@@ -105,6 +108,7 @@ void padre(int rs[2], FD *ph, FD *hp, int auxi, char **argumentos, char *out, in
                                 hijo(rs, ph, hp, hp->pd[0], argumentos, resultado, father);
                             }
                             else {
+                                ph->id = childpid;
                                 close(ph->pd[0]);
                             }
                         }
@@ -114,8 +118,34 @@ void padre(int rs[2], FD *ph, FD *hp, int auxi, char **argumentos, char *out, in
                     goto resul;
                 }
             }
+
+            direccion1 = strtok(direccion, "/"),
+            direccion1 = strtok(NULL, "/");
+            if (!strcmp(comandop, "rmdir") & (direccion1 == NULL) ) {
+                comando(lectura,argumentos, out,rs, ph, hp);
+                if ( !strcmp(out,"") ){
+                    aux_fd = ph;
+                    while ( strcmp(aux_fd->hijo, direccion) ){
+                        aux_fd1 = aux_fd;
+                        aux_fd = aux_fd->sig;
+                    }
+                    kill(aux_fd->id,9);
+                    if ( aux_fd1 == NULL ){
+                        aux_fd1 = aux_fd;
+                        ph = aux_fd->sig;
+                        free(aux_fd1);
+                    }
+                    else {
+                        aux_fd1->sig = aux_fd->sig;
+                        free(aux_fd);
+                        
+                    }
+                    write(rs[1],out, strlen(out)+1);
+                    goto resul;
+                }
+            }
             write(aux_fd->pd[1], lectura, strlen(lectura)+1);
-    resul:	read(rs[0], resultado,1000);
+    resul:	read(rs[0], resultado,10000);
             free(comandop);
             printf("%s", resultado);
         }
@@ -139,7 +169,6 @@ void hijo(int rs[2], FD *ph, FD *hp, int auxi , char ** argumentos, char *out, i
     while ( status != 0 ){
         int aux1, aux2;
         FD *aux_fd;
-printf("soy %s y %d",hp->hijo,getpid());
         status = read(auxi, instruccion,100);
         char *tokken;
         char *direccion;

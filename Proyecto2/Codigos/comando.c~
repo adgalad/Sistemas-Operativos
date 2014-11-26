@@ -232,7 +232,6 @@ char *mv(int argc, char**argv,char *output){
 
 char *find(int argc, char **argv,char *output, int rs[2], FD *ph,FD *hp){
     char *c = malloc(100);
-printf("%s\n",hp->path);
     sprintf(c, ".%s",hp->path);
     DIR *dir = opendir(c);
     if (dir != NULL) {
@@ -244,24 +243,19 @@ printf("%s\n",hp->path);
 								strcat(output,"\n");
             }
         }
+		
 				closedir(dir);
-				FD *aux_pd = ph;
+		 		FD *aux_pd = ph;
 				sprintf(c,"find %s",argv[1]);
 				char *buffer = malloc(512);
 				while( aux_pd !=NULL) {
 					write(aux_pd->pd[0],c,strlen(c)+1);
-					read(aux_pd->pd[1],buffer,512);
-					if(strcmp(buffer,"nada"))
-						strcat(output,buffer);						
 				}
-				if (strlen(output) > 0)
-					write(rs[0],output,strlen(output)+1);
-				else {
-					write(rs[0],"nada",5);
-				}
+				write(rs[0],"nada",5);
+				
 				free(buffer);
     }
-		write(rs[0],"nada",5);
+		printf("%s",output);
     free(c);
     return "";
 }
@@ -294,7 +288,7 @@ char *mkdir_(int argc, char **argv, char *output){
     }
     mkdir(c, 0755);
     free(c);
-    return "0";
+    return "";
 }
 
 char *rmdir_(int argc, char **argv, char *output){

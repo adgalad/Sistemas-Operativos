@@ -29,7 +29,7 @@ char** splitStr(char *str, char tok, int *n, char **resultado){
         strcpy(resultado[1],"/");
     }
     else if (resultado[1]!=NULL && resultado[1][0]!='/') {
-        char *aux = malloc(strlen(resultado[1])+1);
+        char *aux = malloc(strlen(resultado[1])+2);
         sprintf(aux, "/%s",resultado[1]);
         resultado[1] = aux;
     }
@@ -114,7 +114,7 @@ const char *infoFile(char *name, char *output){
 }
 
 char *ls(int argc, char **argv, char *output){
-    char *c = malloc(20);
+    char *c = malloc(20000);
     strcpy(c,".");
     strcat(c, argv[1]);    
     if (argc == 3){
@@ -232,7 +232,6 @@ char *mv(int argc, char**argv,char *output){
 
 char *find(int argc, char **argv,char *output, int rs[2], FD *ph,FD *hp){
     char *c = malloc(100);
-printf("%s\n",hp->path);
     sprintf(c, ".%s",hp->path);
     DIR *dir = opendir(c);
     if (dir != NULL) {
@@ -244,24 +243,17 @@ printf("%s\n",hp->path);
 								strcat(output,"\n");
             }
         }
+		
 				closedir(dir);
-				FD *aux_pd = ph;
+		 		FD *aux_pd = ph;
 				sprintf(c,"find %s",argv[1]);
 				char *buffer = malloc(512);
 				while( aux_pd !=NULL) {
 					write(aux_pd->pd[0],c,strlen(c)+1);
-					read(aux_pd->pd[1],buffer,512);
-					if(strcmp(buffer,"nada"))
-						strcat(output,buffer);						
-				}
-				if (strlen(output) > 0)
-					write(rs[0],output,strlen(output)+1);
-				else {
-					write(rs[0],"nada",5);
 				}
 				free(buffer);
     }
-		write(rs[0],"nada",5);
+		printf("%s",output);
     free(c);
     return "";
 }

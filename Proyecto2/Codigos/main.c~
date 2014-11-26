@@ -16,15 +16,14 @@ int main (int argc, char** argv) {
     int father = -1;
     DIR *dirp;
     struct dirent *direntp;
-    char *ruta = (char *)malloc(200);
-    strcpy(ruta,argv[1]);
-    int childpid;
+    char *ruta = argv[1];
+    pid_t childpid;
     FD *ph = NULL;
     FD *hp = NULL;
     int rs[2];
     int auxi = 0;
     char **argumentos = (char **) malloc (sizeof(char*)*6);
-    char *out = malloc(102400);
+    char *out = malloc(1024);
     chdir(argv[1]);
     
     hp = (FD*) malloc(sizeof(FD));
@@ -146,21 +145,18 @@ skip:
                         ph = aux_fd->sig;
                         free(aux_fd);
                     }
-
                     hp->path = concat;
                     goto directorio;
                     
                 }
                 else {
                     close(ph->pd[0]);
-                    hp->id = childpid;
                 }
             }
         }
         free(aux);
     }
     closedir(dirp);
-    free(ruta);
     
     
     
